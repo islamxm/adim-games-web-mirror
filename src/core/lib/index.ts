@@ -1,1 +1,1 @@
-export { gameUtils } from "./gameUtils";
+export { GameUtils } from "./gameUtils";
