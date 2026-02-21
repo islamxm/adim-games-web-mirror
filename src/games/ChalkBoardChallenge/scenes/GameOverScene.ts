@@ -8,6 +8,7 @@ export class GameOverScene extends BaseScene {
   }
 
   create() {
+    this.utils.createSceneBg("bg");
     this.utils.createStack({
       fillX: true,
       fillY: true,

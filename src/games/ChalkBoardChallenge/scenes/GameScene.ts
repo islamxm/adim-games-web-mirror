@@ -142,16 +142,19 @@ export class GameScene extends BaseScene {
 
   wrong() {
     this.showResultIcon("wrong-icon");
-    const startX = this.cameras.main.scrollX;
+
+    // Останавливаем старые тряски и возвращаем камеру в 0, чтобы не было накопления смещения
+    this.tweens.killTweensOf(this.cameras.main);
+    this.cameras.main.scrollX = 0;
 
     this.tweens.add({
       targets: this.cameras.main,
-      scrollX: startX + 5,
+      scrollX: 5,
       duration: 50,
       yoyo: true,
       repeat: 2,
       onComplete: () => {
-        this.cameras.main.scrollX = startX;
+        this.cameras.main.scrollX = 0;
       },
     });
     this.sound.play("wrong-sound");
