@@ -2,162 +2,129 @@ import * as Phaser from "phaser";
 
 import { SCENES, type Question } from "../config";
 import { GameUtils } from "@/core/lib/gameUtils";
+import { BaseScene } from "@/core/lib/baseScene";
 
 const SCORE_BASE = 5;
 
-export class GameScene extends Phaser.Scene {
-  private utils!: GameUtils;
+export class GameScene extends BaseScene {
   private gameDuration = 60;
   private score = 0;
   private scoreMultiplier = 1;
-  private comboCount = 0; // max 5
+  private comboCount = 0;
   private currentQuestion: Question | null = null;
   private currentQuestionIndex = 0;
-  private startCountdown = 5;
+  private startCountdown = 3;
   private questions: Question[] = [];
 
   private leftText!: Phaser.GameObjects.Text;
   private rightText!: Phaser.GameObjects.Text;
+  private leftPanel!: Phaser.GameObjects.Container;
+  private rightPanel!: Phaser.GameObjects.Container;
+  private boardsContainer!: Phaser.GameObjects.Container;
   private currentResultIcon: Phaser.GameObjects.Image | null = null;
   private timerEvent!: Phaser.Time.TimerEvent;
 
   constructor() {
-    super({ key: SCENES.GAME });
+    super({ sceneKey: SCENES.GAME });
   }
 
-  preload() {
-    this.utils = new GameUtils(this);
+  init() {
     this.questions = this.registry.get("questions");
+    this.score = 0;
+    this.scoreMultiplier = 1;
+    this.comboCount = 0;
+    this.currentQuestionIndex = 0;
+    this.gameDuration = 60;
   }
 
   create() {
-    this.add
-      .image(0, 0, "bg")
-      .setOrigin(0, 0)
-      .setDisplaySize(this.cameras.main.width, this.cameras.main.height);
-
     this.currentQuestion = this.questions[this.currentQuestionIndex];
 
-    this.game.events.on("answer", (value: string) => {
-      if (!this.currentQuestion) return;
-
-      if (value === this.currentQuestion.correct) {
-        this.correct();
-      } else {
-        this.wrong();
-      }
-
-      this._nextQuestion();
+    this.game.events.on("answer", this.handleAnswer, this);
+    this.scene.stop(SCENES.HUD);
+    this.createCountdown(() => {
+      this.createGame();
+      this._startTime();
+      this.scene.launch(SCENES.HUD);
     });
 
-    this.scene.launch(SCENES.HUD);
-    this._createBoard();
-    this._createTitle();
-    this._startTime();
-
-    this.events.on("shutdown", () => {
-      this.game.events.off("answer");
+    this.events.once("shutdown", () => {
+      this.game.events.off("answer", this.handleAnswer, this);
     });
   }
 
-  private _createTitle() {
-    const { width, height } = this.cameras.main;
-    const titleStyle = {
-      fontSize: "18px",
-      color: "#ffffff",
-      fontStyle: "600",
-      fontFamily: "sans-serif",
-    };
+  private handleAnswer(value: string) {
+    if (!this.currentQuestion) return;
 
-    const title = this.add
-      .text(width / 2, height / 2 - 80, "Выберите большую сторону", titleStyle)
-      .setOrigin(0.5)
-      .setResolution(window.devicePixelRatio || 2);
+    if (value === this.currentQuestion.correct) {
+      this.correct();
+    } else {
+      this.wrong();
+    }
 
-    title.setAlpha(0);
-    this.tweens.add({
-      targets: title,
-      alpha: 1,
-      duration: 500,
-      ease: "Linear",
-      delay: 500,
-    });
+    this._nextQuestion();
   }
 
-  _createBoard() {
-    const { width, height } = this.cameras.main;
+  createGame() {
+    this.leftText = this.utils.createText(
+      this.currentQuestion?.leftStatement || "",
+      {
+        style: {
+          color: "#000000",
+          fontSize: `${this.utils._px(24)}px`,
+          fontStyle: "600",
+        },
+      },
+    );
+    this.rightText = this.utils.createText(
+      this.currentQuestion?.rightStatement || "",
+      {
+        style: {
+          color: "#000000",
+          fontSize: `${this.utils._px(24)}px`,
+          fontStyle: "600",
+        },
+      },
+    );
 
-    const leftVariant = this.add.graphics();
-    leftVariant.fillStyle(0xffffff, 1);
-    leftVariant.fillRoundedRect(-160, -50, 152, 100, 10);
+    this.leftPanel = this.utils.createPanel(this.leftText, {
+      width: this.utils._px(152),
+      height: this.utils._px(100),
+      borderRadius: this.utils._px(24),
+    });
+    this.rightPanel = this.utils.createPanel(this.rightText, {
+      width: this.utils._px(152),
+      height: this.utils._px(100),
+      borderRadius: this.utils._px(24),
+    });
 
-    const rightVariant = this.add.graphics();
-    rightVariant.fillStyle(0xffffff, 1);
-    rightVariant.fillRoundedRect(8, -50, 152, 100, 10);
+    const title = this.utils.createText("Выберите большую сторону", {
+      style: {
+        fontSize: `${this.utils._px(18)}px`,
+      },
+    });
 
-    const textStyle = {
-      fontSize: "24px",
-      color: "#000000",
-      fontStyle: "600",
+    this.boardsContainer = this.utils.createStack({
+      gap: this.utils._px(16),
+      items: [this.leftPanel, this.rightPanel],
+    });
+
+    this.utils.createStack({
+      fillY: true,
+      fillX: true,
+      gap: this.utils._px(24),
+      justify: "center",
       align: "center",
-      wordWrap: { width: 140 },
-    };
-
-    this.leftText = this.add
-      .text(-84, 0, this.currentQuestion?.left || "", textStyle)
-      .setOrigin(0.5)
-      .setResolution(window.devicePixelRatio || 2);
-
-    this.rightText = this.add
-      .text(84, 0, this.currentQuestion?.right || "", textStyle)
-      .setOrigin(0.5)
-      .setResolution(window.devicePixelRatio || 2);
-
-    this.add.container(width / 2, height / 2, [
-      leftVariant,
-      rightVariant,
-      this.leftText,
-      this.rightText,
-    ]);
-
-    // Начальные позиции для анимации (с левой и правой стороны)
-    leftVariant.setX(-width / 2);
-    leftVariant.setAlpha(0);
-    this.leftText.setAlpha(0);
-
-    rightVariant.setX(width / 2);
-    rightVariant.setAlpha(0);
-    this.rightText.setAlpha(0);
-
-    // Анимация левой плашки (вылет слева)
-    this.tweens.add({
-      targets: leftVariant,
-      x: 0,
-      alpha: 1,
-      duration: 600,
-      ease: "Cubic.out",
-      delay: 300,
-      onComplete: () => {
-        this.leftText.setAlpha(1);
-      },
+      direction: "column",
+      items: [title, this.boardsContainer],
     });
-
-    // Анимация правой плашки (вылет справа)
-    this.tweens.add({
-      targets: rightVariant,
-      x: 0,
-      alpha: 1,
-      duration: 600,
-      ease: "Cubic.out",
-      delay: 300,
-      onComplete: () => {
-        this.rightText.setAlpha(1);
-      },
-    });
+    this.utils.animateAlpha(title);
+    this.utils.animateFadeLeft(this.leftPanel);
+    this.utils.animateFadeRight(this.rightPanel);
   }
 
   correct() {
-    this._showResultIcon("right-icon");
+    this.showResultIcon("right-icon");
     this.sound.play("correct-sound");
 
     this.comboCount++;
@@ -174,7 +141,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   wrong() {
-    this._showResultIcon("wrong-icon");
+    this.showResultIcon("wrong-icon");
     const startX = this.cameras.main.scrollX;
 
     this.tweens.add({
@@ -199,26 +166,28 @@ export class GameScene extends Phaser.Scene {
     this.game.events.emit("update-combo-count", this.comboCount);
   }
 
-  private _showResultIcon(iconKey: string) {
+  showResultIcon(iconKey: string) {
     if (this.currentResultIcon) {
       this.tweens.killTweensOf(this.currentResultIcon);
       this.currentResultIcon.destroy();
     }
 
-    const { width, height } = this.cameras.main;
+    const icon = this.utils.createImage(iconKey, {
+      width: this.utils._px(50),
+      height: this.utils._px(50),
+    });
 
-    this.currentResultIcon = this.add
-      .image(width / 2, height / 2, iconKey)
-      .setDisplaySize(80, 80)
-      .setAlpha(0)
-      .setScale(0);
-
-    const icon = this.currentResultIcon;
+    this.boardsContainer.add(icon);
+    icon.setOrigin(0.5);
+    icon.setPosition(
+      this.boardsContainer.width / 2,
+      this.boardsContainer.height / 2,
+    );
+    this.currentResultIcon = icon;
 
     this.tweens.add({
       targets: icon,
-      scale: 1,
-      alpha: 1,
+      scale: { from: 0, to: icon.scale },
       duration: 300,
       ease: "Back.out",
       onComplete: () => {
@@ -242,6 +211,73 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  createCountdown(onComplete: () => void) {
+    let count = this.startCountdown;
+    const panelSize = this.utils._px(100);
+
+    const countText = this.utils.createText(count.toString(), {
+      style: {
+        fontSize: `${this.utils._px(48)}px`,
+        fontStyle: "600",
+        color: "#000000",
+      },
+    });
+
+    const panel = this.utils.createPanel(countText, {
+      width: panelSize,
+      height: panelSize,
+      borderRadius: panelSize / 2,
+      justify: "center",
+      align: "center",
+    });
+
+    const container = this.utils.createStack({
+      fillX: true,
+      fillY: true,
+      justify: "center",
+      align: "center",
+      items: [panel],
+    });
+
+    countText.setOrigin(0.5);
+    countText.setPosition(panelSize / 2, panelSize / 2);
+    panel.setAlpha(0);
+    this.tweens.add({
+      targets: panel,
+      alpha: 1,
+      duration: 200,
+      ease: "Back.out",
+    });
+
+    const timer = this.time.addEvent({
+      delay: 1000,
+      repeat: count - 1,
+      callback: () => {
+        count--;
+        if (count > 0) {
+          countText.setText(count.toString());
+          this.tweens.add({
+            targets: countText,
+            scale: { from: 0, to: 1 },
+            duration: 200,
+            ease: "Back.out",
+          });
+        } else {
+          this.tweens.add({
+            targets: panel,
+            alpha: 0,
+            duration: 200,
+            ease: "Back.in",
+            onComplete: () => {
+              container.destroy();
+              onComplete();
+            },
+          });
+        }
+      },
+    });
+  }
+
   private _nextQuestion() {
     this.currentQuestionIndex++;
 
@@ -252,17 +288,18 @@ export class GameScene extends Phaser.Scene {
 
     this.currentQuestion = this.questions[this.currentQuestionIndex];
     if (this.currentQuestion) {
-      // Подготовка текста к анимации
-      this.leftText.setAlpha(0).setX(-94);
-      this.rightText.setAlpha(0).setX(94);
+      this.leftText.setAlpha(0);
+      this.rightText.setAlpha(0);
+      this.leftText.setText(this.currentQuestion.leftStatement);
+      this.rightText.setText(this.currentQuestion.rightStatement);
+      const targetLeftX = (this.leftPanel.width - this.leftText.width) / 2;
+      const targetRightX = (this.rightPanel.width - this.rightText.width) / 2;
+      this.leftText.x = targetLeftX - 84;
+      this.rightText.x = targetRightX + 84;
 
-      this.leftText.setText(this.currentQuestion.left);
-      this.rightText.setText(this.currentQuestion.right);
-
-      // Анимация появления текста
       this.tweens.add({
         targets: this.leftText,
-        x: -84,
+        x: targetLeftX,
         alpha: 1,
         duration: 300,
         ease: "Back.out",
@@ -270,7 +307,7 @@ export class GameScene extends Phaser.Scene {
 
       this.tweens.add({
         targets: this.rightText,
-        x: 84,
+        x: targetRightX,
         alpha: 1,
         duration: 300,
         ease: "Back.out",
@@ -279,7 +316,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private _startTime() {
-    // Теперь UI таймера в HUDScene, здесь только логика
+    if (this.timerEvent) this.timerEvent.destroy();
+
+    this.game.events.emit("timer-update", this._formatTime(this.gameDuration));
+
     this.timerEvent = this.time.addEvent({
       delay: 1000,
       callback: () => {
@@ -310,8 +350,8 @@ export class GameScene extends Phaser.Scene {
       this.timerEvent.destroy();
     }
 
-    this.game.events.off("answer");
-
+    this.scene.stop(SCENES.HUD);
+    this.registry.set("score", this.score);
     this.utils.animatedSceneChange(SCENES.GAME_OVER);
   }
 }

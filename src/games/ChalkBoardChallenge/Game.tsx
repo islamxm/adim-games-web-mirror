@@ -4,16 +4,20 @@ import { useEffect, useRef } from "react";
 import * as Phaser from "phaser";
 
 import { createGameConfig } from "./config";
+import { useNavigate } from "react-router";
 
 const CONTAINER_ID = "chalkboard-challenge-game";
 
 export const Game = () => {
+  const navigate = useNavigate();
   const gameRef = useRef<Phaser.Game | null>(null);
 
   useEffect(() => {
     if (gameRef.current) return;
 
-    const config = createGameConfig(CONTAINER_ID);
+    const config = createGameConfig(CONTAINER_ID, {
+      quit: () => navigate("/games"),
+    });
     gameRef.current = new Phaser.Game(config);
 
     return () => {
