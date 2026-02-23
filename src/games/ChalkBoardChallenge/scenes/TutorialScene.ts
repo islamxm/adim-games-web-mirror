@@ -1,9 +1,11 @@
 import { SCENES } from "../config";
 import { BaseScene } from "@/core/lib/baseScene";
 import type { HUDScene } from "./HUDScene";
+import type Sizer from "phaser3-rex-plugins/templates/ui/sizer/Sizer";
+import type Label from "phaser3-rex-plugins/templates/ui/label/Label";
 
 type Steps = Array<{
-  target: Phaser.GameObjects.Container;
+  target: Sizer | Label;
   message: string;
   buttonText: string;
   placement?: "top" | "bottom";
@@ -11,10 +13,7 @@ type Steps = Array<{
 }>;
 
 export class TutorialScene extends BaseScene {
-  private gameBoard!: Phaser.GameObjects.Container;
-  private leftButton!: Phaser.GameObjects.Container;
-  private rightButton!: Phaser.GameObjects.Container;
-  private title!: Phaser.GameObjects.Text;
+  private gameBoard!: Sizer;
 
   private overlay!: Phaser.GameObjects.RenderTexture;
   private spotObject!: Phaser.GameObjects.Graphics;
@@ -24,7 +23,7 @@ export class TutorialScene extends BaseScene {
     w: 0,
     h: 0,
   };
-  private label!: Phaser.GameObjects.Container;
+  private label!: Sizer;
   private currentStep = 0;
   private steps: Steps = [
     {
@@ -35,14 +34,21 @@ export class TutorialScene extends BaseScene {
     },
     {
       target: this.gameBoard,
-      message: "Egerde sag trapdaky jogap dogry bolsa",
+      message: "Egerde çep trapdaky jogap dogry bolsa",
       buttonText: "Indiki",
       reverse: true,
       placement: "top",
     },
     {
       target: this.gameBoard,
-      message: "Egerde çep tarapdaky jogap dogry bolsa",
+      message: "Egerde iki tarap hem deň bolsa",
+      buttonText: "Indiki",
+      reverse: true,
+      placement: "top",
+    },
+    {
+      target: this.gameBoard,
+      message: "Egerde sag tarapdaky jogap dogry bolsa",
       buttonText: "Başla",
       reverse: true,
       placement: "top",
@@ -55,7 +61,7 @@ export class TutorialScene extends BaseScene {
 
   create() {
     this.scene.launch(SCENES.HUD);
-    this.time.delayedCall(0, () => {
+    this.time.delayedCall(500, () => {
       this.createGameMock();
       this.createOverlay();
       this.next(this.currentStep);
@@ -63,56 +69,103 @@ export class TutorialScene extends BaseScene {
   }
 
   createGameMock() {
-    const leftText = this.utils.createText("1 + 1", {
-      style: {
-        color: "#000000",
-        fontSize: `${this.utils._px(24)}px`,
-        fontStyle: "600",
+    this.add
+      .rectangle(
+        0,
+        0,
+        this.utils.gameWidth,
+        this.utils.gameHeight,
+        this.utils._hexToDecColor("#ffffff"),
+        0,
+      )
+      .setOrigin(0, 0)
+      .setInteractive();
+    const mainContainer = this.rexUI.add.sizer({
+      x: this.utils.gameWidth / 2,
+      y: this.utils.gameHeight / 2,
+      height: this.utils.gameHeight,
+      width: this.utils.gameWidth,
+      orientation: "y",
+      space: {
+        item: this.utils._px(24),
+        top: this.utils.topInset,
+        bottom: this.utils.bottomInset,
       },
     });
-    const rightText = this.utils.createText("3", {
-      style: {
-        color: "#000000",
-        fontSize: `${this.utils._px(24)}px`,
-        fontStyle: "600",
-      },
+    const title = this.utils.createText("Haýsy tarap uly bolsa saýlaň", {
+      style: { fontSize: `${this.utils._px(18)}px` },
+    });
+    const boardsContainer = this.rexUI.add.sizer({
+      orientation: "x",
+      space: { item: this.utils._px(16) },
     });
 
-    const leftButton = this.utils.createPanel(leftText, {
+    const leftText = this.utils
+      .createText("1 + 1", {
+        style: {
+          color: "#000000",
+          fontSize: `${this.utils._px(24)}px`,
+          fontStyle: "600",
+        },
+      })
+      .setDepth(1);
+    const rightText = this.utils
+      .createText("3", {
+        style: {
+          color: "#000000",
+          fontSize: `${this.utils._px(24)}px`,
+          fontStyle: "600",
+        },
+      })
+      .setDepth(1);
+
+    const leftPanel = this.rexUI.add.label({
       width: this.utils._px(152),
       height: this.utils._px(100),
-      borderRadius: this.utils._px(24),
-    });
-    const rightButton = this.utils.createPanel(rightText, {
-      width: this.utils._px(152),
-      height: this.utils._px(100),
-      borderRadius: this.utils._px(24),
-    });
-
-    this.title = this.utils.createText("Выберите большую сторону", {
-      style: {
-        fontSize: `${this.utils._px(18)}px`,
-      },
-    });
-
-    this.gameBoard = this.utils.createStack({
-      gap: this.utils._px(16),
-      items: [leftButton, rightButton],
-    });
-
-    this.utils.createStack({
-      fillY: true,
-      fillX: true,
-      gap: this.utils._px(24),
-      justify: "center",
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(24),
+        0xffffff,
+      ),
+      text: leftText,
       align: "center",
-      direction: "column",
-      items: [this.title, this.gameBoard],
     });
+
+    const rightPanel = this.rexUI.add.label({
+      width: this.utils._px(152),
+      height: this.utils._px(100),
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(24),
+        0xffffff,
+      ),
+      text: rightText,
+      align: "center",
+    });
+
+    boardsContainer.add(leftPanel);
+    boardsContainer.add(rightPanel);
+
+    mainContainer.addSpace();
+    mainContainer.add(title, { align: "center" });
+    mainContainer.add(boardsContainer, { align: "center" });
+    mainContainer.addSpace();
+    mainContainer.layout();
+
+    this.utils.animateAlpha(title);
+    this.utils.animateFadeLeft(leftPanel);
+    this.utils.animateFadeRight(rightPanel);
     const hudScene = this.scene.get(SCENES.HUD) as HUDScene;
-    this.steps[0].target = this.gameBoard;
+    this.steps[0].target = boardsContainer;
     this.steps[1].target = hudScene.leftButton;
-    this.steps[2].target = hudScene.rightButton;
+    this.steps[2].target = hudScene.equalButton;
+    this.steps[3].target = hudScene.rightButton;
   }
 
   createOverlay() {
@@ -139,14 +192,15 @@ export class TutorialScene extends BaseScene {
   }
 
   next(step: number) {
-    const padding = 15;
+    const padding = this.utils._px(15);
     if (this.label) {
       this.label.destroy();
     }
     const target = this.steps[step].target;
+
     const { x, y } = this.utils._getGlobalPosition(target);
-    const targetX = x - padding;
-    const targetY = y - padding;
+    const targetX = x - padding - target.width / 2;
+    const targetY = y - padding - target.height / 2;
     const targetW = target.width + padding * 2;
     const targetH = target.height + padding * 2;
 
@@ -212,92 +266,120 @@ export class TutorialScene extends BaseScene {
     onClick: () => void,
     reverse?: boolean,
   ) {
-    const button = this.utils.createButton(
-      this.utils.createText(buttonText, {
-        style: { color: "#ffffff", fontSize: this.utils._px(16) },
+    const btn = this.rexUI.add.label({
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(10),
+        0xf0c23b,
+      ),
+      text: this.utils.createText(buttonText, {
+        style: {
+          color: "#ffffff",
+          fontSize: this.utils._px(16),
+          align: "center",
+        },
       }),
-      {
-        p: [
-          this.utils._px(5),
-          this.utils._px(16),
-          this.utils._px(5),
-          this.utils._px(16),
-        ],
-        justify: "center",
-        align: "center",
-        backgroundColor: "#F0C23B",
-        onClick,
+      space: {
+        top: this.utils._px(5),
+        bottom: this.utils._px(5),
+        left: this.utils._px(16),
+        right: this.utils._px(16),
       },
-    );
-    const label = this.utils.createStack({
-      gap: this.utils._px(12),
-      direction: "column",
-      justify: "center",
       align: "center",
-      items: reverse
-        ? [
-            button,
-            this.utils.createText(messageText, {
-              style: { color: "#ffffff", fontSize: this.utils._px(18) },
-            }),
-          ]
-        : [
-            this.utils.createText(messageText, {
-              style: { color: "#ffffff", fontSize: this.utils._px(18) },
-            }),
-            button,
-          ],
     });
-    label.setDepth(101);
-    return label;
+
+    btn.setInteractive().on("pointerdown", onClick);
+
+    const text = this.utils.createText(messageText, {
+      style: {
+        color: "#ffffff",
+        fontSize: this.utils._px(18),
+        wordWrap: { width: this.utils.gameWidth / 2 },
+        align: "center",
+      },
+    });
+
+    const container = this.rexUI.add.sizer({
+      orientation: "y",
+      width: this.utils.gameWidth / 2,
+      space: { item: this.utils._px(12) },
+    });
+
+    if (reverse) {
+      container.add(btn, { align: "center" });
+      container.add(text, { align: "center" });
+    } else {
+      container.add(text, { align: "center" });
+      container.add(btn, { align: "center" });
+    }
+    container.layout();
+    container.setDepth(101);
+    return container;
   }
 
-  private _setOnTop(
-    object: Phaser.GameObjects.Container,
-    targetObject: Phaser.GameObjects.Container,
-  ) {
+  private _setOnTop(object: Sizer, targetObject: Label | Sizer) {
     const targetObjectPos = this.utils._getGlobalPosition(targetObject);
-    const objectPos = this.utils._getGlobalPosition(object);
-    const offset = this.utils._px(15);
-    const canSetOnTop =
-      objectPos.y + object.height + offset < targetObjectPos.y;
+    const offset = this.utils._px(30);
+
+    // Доступное место сверху = центр мишени - пол-высоты мишени - отступ сверху (safe area)
+    const availableSpaceTop =
+      targetObjectPos.y - targetObject.height / 2 - this.utils.topInset;
+
+    // Нужно места = высота плашки + отступ от мишени
+    const spaceNeeded = object.height + offset;
+
+    const canSetOnTop = availableSpaceTop > spaceNeeded;
 
     if (!canSetOnTop) {
-      this._setOnBottom(object, targetObject);
       return;
     }
-    let y = targetObjectPos.y - object.height - offset;
-    let x = targetObjectPos.x + targetObject.width / 2 - object.width / 2;
 
-    const isLeftFloat = x < 0;
-    const isRightFloat = x + object.width > this.utils.gameWidth;
+    let y =
+      targetObjectPos.y - targetObject.height / 2 - offset - object.height / 2;
+    let x = targetObjectPos.x;
+
+    const isLeftFloat = x - object.width / 2 < 0;
+    const isRightFloat = x + object.width / 2 > this.utils.gameWidth;
 
     if (isLeftFloat) {
-      x = 0;
-    }
-
-    if (isRightFloat) {
-      x = this.utils.gameWidth - object.width;
+      x = object.width / 2;
+    } else if (isRightFloat) {
+      x = this.utils.gameWidth - object.width / 2;
     }
 
     object.setPosition(x, y);
   }
-  private _setOnBottom(
-    object: Phaser.GameObjects.Container,
-    targetObject: Phaser.GameObjects.Container,
-  ) {
+
+  private _setOnBottom(object: Sizer, targetObject: Label | Sizer) {
     const targetObjectPos = this.utils._getGlobalPosition(targetObject);
-    const objectPos = this.utils._getGlobalPosition(object);
     const offset = this.utils._px(15);
-    const canSetOnBottom =
-      this.utils.gameHeight - targetObjectPos.y + targetObject.height + offset >
-      object.height;
+
+    const availableSpaceBottom =
+      this.utils.gameHeight -
+      (targetObjectPos.y + targetObject.height / 2) -
+      this.utils.bottomInset;
+
+    const spaceNeeded = object.height + offset;
+
+    const canSetOnBottom = availableSpaceBottom > spaceNeeded;
+
     if (!canSetOnBottom) {
       return;
     }
 
-    const y = targetObjectPos.y + targetObject.height + offset;
-    const x = targetObjectPos.x + targetObject.width / 2 - object.width / 2;
+    const y =
+      targetObjectPos.y + targetObject.height / 2 + offset + object.height / 2;
+    let x = targetObjectPos.x;
+
+    if (x - object.width / 2 < 0) {
+      x = object.width / 2;
+    } else if (x + object.width / 2 > this.utils.gameWidth) {
+      x = this.utils.gameWidth - object.width / 2;
+    }
+
     object.setPosition(x, y);
   }
 }

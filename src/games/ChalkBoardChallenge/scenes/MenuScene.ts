@@ -2,22 +2,14 @@ import * as Phaser from "phaser";
 
 import { SCENES } from "../config";
 import { GameUtils } from "@/core/lib/gameUtils";
+import { BaseScene } from "@/core/lib/baseScene";
 
-export class MenuScene extends Phaser.Scene {
-  utils!: GameUtils;
-
+export class MenuScene extends BaseScene {
   constructor() {
-    super({ key: SCENES.MENU });
-  }
-
-  preload() {
-    this.utils = new GameUtils(this);
+    super({ sceneKey: SCENES.MENU });
   }
 
   create() {
-    const { width, height } = this.cameras.main;
-
-    // Скрываем камеру в начале для плавного появления
     this.cameras.main.setAlpha(0);
     this.tweens.add({
       targets: this.cameras.main,
@@ -25,9 +17,8 @@ export class MenuScene extends Phaser.Scene {
       duration: 150,
     });
 
-    // Фоновый прямоугольник, который блокирует клики под собой
     this.add
-      .rectangle(0, 0, width, height, 0x1a472a)
+      .rectangle(0, 0, this.utils.gameWidth, this.utils.gameHeight, 0x1a472a)
       .setOrigin(0, 0)
       .setInteractive();
 
@@ -38,45 +29,38 @@ export class MenuScene extends Phaser.Scene {
       Quit: "quit-icon",
     };
 
-    const buttonWidth = this.utils._px(270);
-    const buttonHeight = this.utils._px(50);
-    const gap = this.utils._px(10);
-
     const btns: Array<any> = [];
 
     labels.forEach((label) => {
-      const btn = this.utils.createPanel(
-        this.utils.createStack({
-          items: [
-            this.utils.createImage(iconMap[label], {
-              width: this.utils._px(24),
-              height: this.utils._px(24),
-            }),
-            this.utils.createText(label, {
-              style: {
-                fontSize: `${this.utils._px(18)}px`,
-                color: "#FFFFFF",
-              },
-            }),
-          ],
-          gap,
-          align: "center",
-          justify: "start",
-        }),
-        {
-          backgroundAlpha: 0.4,
-          backgroundColor: "#000000",
-          width: buttonWidth,
-          height: buttonHeight,
+      const btn = this.rexUI.add.label({
+        width: this.utils._px(270),
+        background: this.rexUI.add
+          .roundRectangle(0, 0, 0, 0, 0, this.utils._hexToDecColor("#000000"))
+          .setAlpha(0.4),
+        space: {
+          iconLeft: this.utils._px(16),
+          top: this.utils._px(12),
+          bottom: this.utils._px(12),
+          left: this.utils._px(16),
+          right: this.utils._px(16),
         },
-      );
-
-      btn.on("pointerdown", () => {
+        icon: this.add
+          .image(0, 0, iconMap[label])
+          .setDisplaySize(this.utils._px(24), this.utils._px(24)),
+        text: this.utils.createText(label, {
+          style: { fontSize: `${this.utils._px(18)}px`, color: "#FFFFFF" },
+        }),
+        align: "left",
+      });
+      btn.layout();
+      btn.setInteractive().on("pointerdown", () => {
         if (label === "Resume") {
           this.closeMenu();
         }
         if (label === "Restart") {
           this.closeMenu();
+          this.registry.set("score", 0);
+          this.scene.start(SCENES.GAME);
           this.game.events.emit("restart");
         }
         if (label === "Quit") {
@@ -87,15 +71,18 @@ export class MenuScene extends Phaser.Scene {
       btns.push(btn);
     });
 
-    const container = this.utils.createStack({
-      fillX: true,
-      fillY: true,
-      direction: "column",
-      align: "center",
-      justify: "center",
-      gap: this.utils._px(8),
-      items: btns,
+    const container = this.rexUI.add.sizer({
+      x: this.utils.gameWidth / 2,
+      y: this.utils.gameHeight / 2,
+      width: this.utils.gameWidth,
+      height: this.utils.gameHeight,
+      orientation: "y",
+      space: { item: this.utils._px(8) },
     });
+    container.addSpace();
+    btns.forEach((btn) => container.add(btn, { align: "center" }));
+    container.addSpace();
+    container.layout();
   }
 
   private closeMenu() {

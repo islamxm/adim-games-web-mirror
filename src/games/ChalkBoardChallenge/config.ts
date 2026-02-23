@@ -1,14 +1,13 @@
-import * as Phaser from "phaser";
-
 import { BootScene } from "./scenes/BootScene";
 import { GameScene } from "./scenes/GameScene";
 import { HUDScene } from "./scenes/HUDScene";
 import { MenuScene } from "./scenes/MenuScene";
 import { GameOverScene } from "./scenes/GameOverScene";
 import { TutorialScene } from "./scenes/TutorialScene";
-import { DYNAMIC_GAME_HEIGHT, DYNAMIC_GAME_WIDTH } from "@/core/model/game";
+import { SCALE_COEF, type GameWindowBounds } from "@/core/model/game";
 import { StartScene } from "./scenes/StartScene";
 import { BackgroundScene } from "./scenes/BackgroundScene";
+import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js";
 
 export const SCENES = {
   HUD: "HUDScene",
@@ -23,12 +22,13 @@ export const SCENES = {
 
 export function createGameConfig(
   parent: string,
+  bounds: GameWindowBounds,
   externalData?: Record<string, any>,
 ): Phaser.Types.Core.GameConfig {
   return {
     type: Phaser.AUTO,
-    width: DYNAMIC_GAME_WIDTH,
-    height: DYNAMIC_GAME_HEIGHT,
+    width: bounds.width * SCALE_COEF,
+    height: bounds.height * SCALE_COEF,
     parent,
     backgroundColor: "#1a472a",
     scale: {
@@ -51,12 +51,18 @@ export function createGameConfig(
     ],
     callbacks: {
       postBoot: (game) => {
+        game.registry.set("bounds", bounds);
         if (externalData) {
           Object.entries(externalData).forEach(([key, value]) => {
             game.registry.set(key, value);
           });
         }
       },
+    },
+    plugins: {
+      scene: [
+        { key: "rexUI", plugin: RexUIPlugin, start: true, mapping: "rexUI" },
+      ],
     },
   };
 }

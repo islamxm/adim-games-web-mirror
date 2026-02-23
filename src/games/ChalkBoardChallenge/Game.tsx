@@ -4,19 +4,38 @@ import { useEffect, useRef } from "react";
 import * as Phaser from "phaser";
 
 import { createGameConfig } from "./config";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
+import type { GameWindowBounds } from "@/core/model";
 
 const CONTAINER_ID = "chalkboard-challenge-game";
 
 export const Game = () => {
   const navigate = useNavigate();
   const gameRef = useRef<Phaser.Game | null>(null);
+  const [searchParams] = useSearchParams();
+
+  const width = searchParams.get("width");
+  const height = searchParams.get("height");
+  const topInset = searchParams.get("topInset");
+  const bottomInset = searchParams.get("bottomInset");
+
+  const userId = (searchParams.get("userId") || "24") as string;
+
+  const isAvilableBounds = !!(width && height && topInset && bottomInset);
 
   useEffect(() => {
-    if (gameRef.current) return;
+    if (gameRef.current || !isAvilableBounds) return;
 
-    const config = createGameConfig(CONTAINER_ID, {
-      quit: () => navigate("/games"),
+    const bounds: GameWindowBounds = {
+      width: Number(width),
+      height: Number(height),
+      topInset: Number(topInset),
+      bottomInset: Number(bottomInset),
+    };
+    console.log(userId);
+    const config = createGameConfig(CONTAINER_ID, bounds, {
+      quit: () => console.log("SEND EVENT TO NATIVE DEVICE"),
+      userId,
     });
     gameRef.current = new Phaser.Game(config);
 
@@ -24,7 +43,7 @@ export const Game = () => {
       gameRef.current?.destroy(true);
       gameRef.current = null;
     };
-  }, []);
+  }, [isAvilableBounds]);
 
   return (
     <div

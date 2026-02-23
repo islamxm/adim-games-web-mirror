@@ -1,14 +1,16 @@
 import * as Phaser from "phaser";
 import { SCENES } from "../config";
 import { BaseScene } from "@/core/lib/baseScene";
+import type Label from "phaser3-rex-plugins/templates/ui/label/Label";
 
 export class HUDScene extends BaseScene {
   private timerText!: Phaser.GameObjects.Text;
   private scoreValue!: Phaser.GameObjects.Text;
   private comboValue!: Phaser.GameObjects.Text;
   private comboCircles: Phaser.GameObjects.Arc[] = [];
-  public leftButton!: Phaser.GameObjects.Container;
-  public rightButton!: Phaser.GameObjects.Container;
+  public leftButton!: Label;
+  public rightButton!: Label;
+  public equalButton!: Label;
 
   constructor() {
     super({ sceneKey: SCENES.HUD });
@@ -33,197 +35,245 @@ export class HUDScene extends BaseScene {
     });
   }
 
-  private _createScorePanel() {
-    this.scoreValue = this.utils.createText("0", {
-      style: { color: "#000000" },
-    });
-    this.game.events.on("update-score", (score: number) => {
-      this.scoreValue.setText(score.toString());
-    });
-    const scorePanel = this.utils.createPanel(
-      this.utils.createStack({
-        direction: "row",
-        gap: this.utils._px(8),
-        items: [
-          this.utils.createText("Score", { style: { color: "#000000" } }),
-          this.scoreValue,
-        ],
-      }),
-      {
-        width: this.utils._px(93),
-        height: this.utils._px(34),
-        borderRadius: this.utils._px(10),
-        p: [0, this.utils._px(8), 0, this.utils._px(8)],
-        justify: "start",
-      },
-    );
-    return scorePanel;
-  }
-
   createControlsPanel() {
-    const panel = this.utils.createPanel(
-      this.utils.createStack({
-        direction: "row",
-        gap: this.utils._px(18),
-        items: [
-          (this.leftButton = this.utils.createPanel(
-            this.utils.createImage("arrow-left-icon", {
-              width: this.utils._px(34),
-              height: this.utils._px(34),
-            }),
-            {
-              width: this.utils._px(64),
-              height: this.utils._px(54),
-              borderRadius: this.utils._px(16),
-              p: [
-                this.utils._px(10),
-                this.utils._px(15),
-                this.utils._px(10),
-                this.utils._px(15),
-              ],
-              backgroundColor: "#F0C23B",
-              onClick: () => {
-                this.game.events.emit("answer", "LEFT");
-              },
-            },
-          )),
-          this.utils.createPanel(
-            this.utils.createText("=", {
-              style: { fontSize: this.utils._px(24) },
-            }),
-            {
-              width: this.utils._px(64),
-              height: this.utils._px(54),
-              borderRadius: this.utils._px(16),
-              p: [
-                this.utils._px(10),
-                this.utils._px(15),
-                this.utils._px(10),
-                this.utils._px(15),
-              ],
-              backgroundColor: "#F0C23B",
-              onClick: () => {
-                this.game.events.emit("answer", "EQUAL");
-              },
-            },
-          ),
-          (this.rightButton = this.utils.createPanel(
-            this.utils.createImage("arrow-right-icon", {
-              width: this.utils._px(34),
-              height: this.utils._px(34),
-            }),
-            {
-              width: this.utils._px(64),
-              height: this.utils._px(54),
-              borderRadius: this.utils._px(16),
-              p: [
-                this.utils._px(10),
-                this.utils._px(15),
-                this.utils._px(10),
-                this.utils._px(15),
-              ],
-              backgroundColor: "#F0C23B",
-              onClick: () => {
-                this.game.events.emit("answer", "RIGHT");
-              },
-            },
-          )),
-        ],
-      }),
-      {
-        width: this.utils._px(248),
-        height: this.utils._px(74),
-        borderRadius: this.utils._px(18),
-        p: [
-          this.utils._px(10),
-          this.utils._px(10),
-          this.utils._px(10),
-          this.utils._px(10),
-        ],
+    const panel = this.rexUI.add.label({
+      y: this.utils.gameHeight - this.utils.bottomInset - this.utils._px(34),
+      x: this.utils.gameWidth / 2,
+      space: {
+        left: this.utils._px(10),
+        right: this.utils._px(10),
+        top: this.utils._px(10),
+        bottom: this.utils._px(10),
       },
-    );
-    panel.x = (this.utils.gameWidth - panel.width) / 2;
-    panel.y = this.utils.gameHeight - panel.height - this.utils._px(42);
-    this.utils.animateScale(panel);
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(24),
+        0xffffff,
+      ),
+    });
+
+    const sizer = this.rexUI.add.sizer({
+      space: {
+        item: this.utils._px(18),
+      },
+      orientation: "x",
+    });
+
+    this.leftButton = this.rexUI.add.label({
+      width: this.utils._px(64),
+      height: this.utils._px(54),
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(16),
+        0xf0c23b,
+      ),
+      icon: this.add
+        .image(0, 0, "arrow-left-icon")
+        .setDisplaySize(this.utils._px(34), this.utils._px(34)),
+      align: "center",
+    });
+
+    this.rightButton = this.rexUI.add.label({
+      width: this.utils._px(64),
+      height: this.utils._px(54),
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(16),
+        0xf0c23b,
+      ),
+      icon: this.add
+        .image(0, 0, "arrow-right-icon")
+        .setDisplaySize(this.utils._px(34), this.utils._px(34)),
+      align: "center",
+    });
+
+    this.equalButton = this.rexUI.add.label({
+      width: this.utils._px(64),
+      height: this.utils._px(54),
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(16),
+        0xf0c23b,
+      ),
+      text: this.utils.createText("=", {
+        style: { fontSize: this.utils._px(30) },
+      }),
+      align: "center",
+    });
+
+    this.leftButton
+      .setInteractive()
+      .on("pointerdown", () => this.game.events.emit("answer", "LEFT"));
+    this.rightButton
+      .setInteractive()
+      .on("pointerdown", () => this.game.events.emit("answer", "RIGHT"));
+    this.equalButton
+      .setInteractive()
+      .on("pointerdown", () => this.game.events.emit("answer", "EQUAL"));
+
+    sizer.add(this.leftButton);
+    sizer.add(this.equalButton);
+    sizer.add(this.rightButton);
+    sizer.layout;
+
+    panel.add(sizer, { proportion: 1 });
+    panel.setOrigin(0.5, 1);
+    panel.layout();
+    this.utils.animateAlpha(panel);
   }
 
   createIndicatorsPanel() {
     const timePanel = this._createTimePanel();
     const comboPanel = this._createComboPanel();
     const scorePanel = this._createScorePanel();
-    const stack = this.utils.createStack({
-      y: this.utils._px(34),
-      direction: "column",
-      align: "end",
-      justify: "start",
-      gap: this.utils._px(12),
-      items: [
-        this.utils.createStack({
-          direction: "row",
-          justify: "end",
-          align: "center",
-          gap: this.utils._px(12),
-          items: [timePanel, scorePanel],
-        }),
-        comboPanel,
-      ],
+
+    const panel = this.rexUI.add
+      .sizer({
+        x: this.utils.gameWidth - this.utils._px(34),
+        y: this.utils.topInset + this.utils._px(34),
+        orientation: "v",
+        space: {
+          item: this.utils._px(12),
+        },
+      })
+      .setOrigin(1, 0);
+
+    const top = this.rexUI.add.sizer({
+      orientation: "h",
+      space: { item: this.utils._px(12) },
     });
-    stack.x = this.utils.gameWidth - stack.width - this.utils._px(34);
-    this.utils.animateScale(stack);
+    top.add(timePanel, { align: "center" });
+    top.add(scorePanel, { align: "center" });
+    top.layout();
+    panel.add(top, { align: "right" });
+    panel.add(comboPanel, { align: "right" });
+    panel.layout();
+
+    this.utils.animateAlpha(panel);
   }
 
   createPauseBtn() {
-    const btn = this.utils.createButton(
-      this.utils.createImage("pause-icon", {
-        width: this.utils._px(20),
-        height: this.utils._px(20),
-      }),
-      {
-        p: [
-          this.utils._px(7),
-          this.utils._px(7),
-          this.utils._px(7),
-          this.utils._px(7),
-        ],
-        backgroundColor: "#F0C23B",
-        borderRadius: this.utils._px(10),
+    const button = this.rexUI.add
+      .label({
         x: this.utils._px(34),
-        y: this.utils._px(34),
-        onClick: () => {
-          this.scene.pause(SCENES.GAME);
-          this.scene.launch(SCENES.MENU);
+        y: this.utils.topInset + this.utils._px(34),
+        background: this.rexUI.add.roundRectangle(
+          0,
+          0,
+          2,
+          2,
+          this.utils._px(10),
+          0xffcc00,
+        ),
+        icon: this.add
+          .image(0, 0, "pause-icon")
+          .setDisplaySize(this.utils._px(20), this.utils._px(20)),
+        space: {
+          top: this.utils._px(7),
+          bottom: this.utils._px(7),
+          left: this.utils._px(7),
+          right: this.utils._px(7),
         },
+      })
+      .setOrigin(0)
+      .layout();
+    button.setInteractive().on("pointerdown", () => {
+      this.scene.pause(SCENES.GAME);
+      this.scene.launch(SCENES.MENU);
+    });
+    this.utils.animateAlpha(button);
+  }
+
+  private _createScorePanel() {
+    const scorePanel = this.rexUI.add.label({
+      width: this.utils._px(93),
+      height: this.utils._px(34),
+      orientation: "x",
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(10),
+        0xffffff,
+      ),
+      space: {
+        left: this.utils._px(8),
+        right: this.utils._px(8),
       },
-    );
-    this.utils.animateScale(btn);
+    });
+
+    const sizer = this.rexUI.add.sizer({
+      orientation: "x",
+    });
+    const label = this.utils.createText("Score", {
+      style: { color: "#000000" },
+    });
+    this.scoreValue = this.utils.createText("0", {
+      style: { color: "#000000" },
+    });
+    sizer.add(label);
+    sizer.addSpace();
+    sizer.add(this.scoreValue);
+    sizer.layout();
+
+    scorePanel.add(sizer, { proportion: 1 });
+    scorePanel.layout();
+
+    this.game.events.on("update-score", (score: number) => {
+      this.scoreValue.setText(score.toString());
+      scorePanel.layout();
+    });
+
+    return scorePanel;
   }
 
   private _createTimePanel() {
+    const timePanel = this.rexUI.add.label({
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(10),
+        0xffffff,
+      ),
+      width: this.utils._px(100),
+      height: this.utils._px(34),
+      space: {
+        left: this.utils._px(8),
+        right: this.utils._px(8),
+      },
+    });
+    const sizer = this.rexUI.add.sizer({ orientation: "x" });
+    const label = this.utils.createText("Wagt", {
+      style: { color: "#000000" },
+    });
     this.timerText = this.utils.createText("01:00", {
       style: { color: "#000000" },
     });
+    sizer.add(label);
+    sizer.addSpace();
+    sizer.add(this.timerText);
+    sizer.layout();
+    timePanel.add(sizer, { proportion: 1 });
 
     this.game.events.on("timer-update", (formattedTime: string) => {
       this.timerText.setText(formattedTime);
+      timePanel.layout();
     });
-
-    const timePanel = this.utils.createPanel(
-      this.utils.createStack({
-        direction: "row",
-        gap: this.utils._px(8),
-        items: [
-          this.utils.createText("Wagt", { style: { color: "#000000" } }),
-          this.timerText,
-        ],
-      }),
-      {
-        width: this.utils._px(93),
-        height: this.utils._px(34),
-        borderRadius: this.utils._px(10),
-        p: [0, this.utils._px(8), 0, this.utils._px(8)],
-        justify: "start",
-      },
-    );
     return timePanel;
   }
 
@@ -231,45 +281,40 @@ export class HUDScene extends BaseScene {
     const circleRadius = this.utils._px(7);
     const circleGap = this.utils._px(6);
 
-    const circles = [];
+    const comboPanel = this.rexUI.add
+      .sizer({
+        width: this.utils._px(138),
+        height: this.utils._px(40),
+        orientation: "x",
+        space: {
+          left: this.utils._px(10),
+          right: this.utils._px(10),
+          item: this.utils._px(8),
+        },
+      })
+      .addBackground(
+        this.rexUI.add.roundRectangle(0, 0, 2, 2, this.utils._px(12), 0xffffff),
+      );
+
+    const circlesSizer = this.rexUI.add.sizer({
+      orientation: "x",
+      space: { item: circleGap },
+    });
+
     for (let i = 0; i < 5; i++) {
       const circle = this.add.circle(0, 0, circleRadius, 0xffffff);
       circle.setStrokeStyle(2, 0xffcc00);
-      circles.push(circle);
+      circlesSizer.add(circle);
       this.comboCircles.push(circle);
     }
-
-    const circlesRow = this.utils.createStack({
-      direction: "row",
-      gap: circleGap,
-      items: circles,
-    });
-    circles.forEach((circle) => {
-      circle.setOrigin(0.5);
-      circle.x += circleRadius;
-      circle.y += circleRadius;
-    });
 
     this.comboValue = this.utils.createText("1x", {
       style: { color: "#000000" },
     });
 
-    const contentStack = this.utils.createStack({
-      direction: "row",
-      gap: this.utils._px(8),
-      align: "center",
-      items: [circlesRow, this.comboValue],
-    });
-
-    const comboPanel = this.utils.createPanel(contentStack, {
-      width: this.utils._px(138),
-      height: this.utils._px(40),
-      borderRadius: this.utils._px(12),
-      backgroundColor: "#ffffff",
-      p: [0, this.utils._px(10), 0, this.utils._px(10)],
-      justify: "center",
-      align: "center",
-    });
+    comboPanel.add(circlesSizer, { align: "center" });
+    comboPanel.add(this.comboValue, { align: "center" });
+    comboPanel.layout();
 
     this.game.events.on("update-combo-multiplier", (value: number) => {
       this.comboValue.setText(`${value}x`);

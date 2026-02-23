@@ -22,3 +22,10 @@ export const GAME_WIDTH = 390 * SCALE_COEF;
 export const GAME_HEIGHT = 844 * SCALE_COEF;
 export const DYNAMIC_GAME_WIDTH = window.innerWidth * SCALE_COEF;
 export const DYNAMIC_GAME_HEIGHT = window.innerHeight * SCALE_COEF;
+
+export type GameWindowBounds = {
+  width: number;
+  height: number;
+  topInset: number;
+  bottomInset: number;
+};

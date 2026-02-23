@@ -3,6 +3,8 @@ import * as Phaser from "phaser";
 import { SCENES, type Question } from "../config";
 import { GameUtils } from "@/core/lib/gameUtils";
 import { BaseScene } from "@/core/lib/baseScene";
+import type Label from "phaser3-rex-plugins/templates/ui/label/Label";
+import type Sizer from "phaser3-rex-plugins/templates/ui/sizer/Sizer";
 
 const SCORE_BASE = 5;
 
@@ -18,9 +20,9 @@ export class GameScene extends BaseScene {
 
   private leftText!: Phaser.GameObjects.Text;
   private rightText!: Phaser.GameObjects.Text;
-  private leftPanel!: Phaser.GameObjects.Container;
-  private rightPanel!: Phaser.GameObjects.Container;
-  private boardsContainer!: Phaser.GameObjects.Container;
+  private leftPanel!: Label;
+  private rightPanel!: Label;
+  private boardsContainer!: Sizer;
   private currentResultIcon: Phaser.GameObjects.Image | null = null;
   private timerEvent!: Phaser.Time.TimerEvent;
 
@@ -66,58 +68,84 @@ export class GameScene extends BaseScene {
   }
 
   createGame() {
-    this.leftText = this.utils.createText(
-      this.currentQuestion?.leftStatement || "",
-      {
+    const mainContainer = this.rexUI.add.sizer({
+      x: this.utils.gameWidth / 2,
+      y: this.utils.gameHeight / 2,
+      height: this.utils.gameHeight,
+      width: this.utils.gameWidth,
+      orientation: "y",
+      space: {
+        item: this.utils._px(24),
+      },
+    });
+    const title = this.utils.createText("Haýsy tarap uly bolsa saýlaň", {
+      style: { fontSize: `${this.utils._px(18)}px` },
+    });
+    this.boardsContainer = this.rexUI.add.sizer({
+      orientation: "x",
+      space: { item: this.utils._px(16) },
+    });
+
+    this.leftText = this.utils
+      .createText(this.currentQuestion?.leftStatement || "", {
         style: {
           color: "#000000",
           fontSize: `${this.utils._px(24)}px`,
           fontStyle: "600",
         },
-      },
-    );
-    this.rightText = this.utils.createText(
-      this.currentQuestion?.rightStatement || "",
-      {
+      })
+      .setDepth(1);
+    this.rightText = this.utils
+      .createText(this.currentQuestion?.rightStatement || "", {
         style: {
           color: "#000000",
           fontSize: `${this.utils._px(24)}px`,
           fontStyle: "600",
         },
-      },
-    );
+      })
+      .setDepth(1);
 
-    this.leftPanel = this.utils.createPanel(this.leftText, {
+    this.leftPanel = this.rexUI.add.label({
       width: this.utils._px(152),
       height: this.utils._px(100),
-      borderRadius: this.utils._px(24),
-    });
-    this.rightPanel = this.utils.createPanel(this.rightText, {
-      width: this.utils._px(152),
-      height: this.utils._px(100),
-      borderRadius: this.utils._px(24),
-    });
-
-    const title = this.utils.createText("Выберите большую сторону", {
-      style: {
-        fontSize: `${this.utils._px(18)}px`,
-      },
-    });
-
-    this.boardsContainer = this.utils.createStack({
-      gap: this.utils._px(16),
-      items: [this.leftPanel, this.rightPanel],
-    });
-
-    this.utils.createStack({
-      fillY: true,
-      fillX: true,
-      gap: this.utils._px(24),
-      justify: "center",
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(24),
+        0xffffff,
+      ),
+      text: this.leftText,
       align: "center",
-      direction: "column",
-      items: [title, this.boardsContainer],
     });
+
+    this.rightPanel = this.rexUI.add.label({
+      width: this.utils._px(152),
+      height: this.utils._px(100),
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        this.utils._px(24),
+        0xffffff,
+      ),
+      text: this.rightText,
+      align: "center",
+    });
+
+    this.boardsContainer.addSpace();
+    this.boardsContainer.add(this.leftPanel);
+    this.boardsContainer.add(this.rightPanel);
+    this.boardsContainer.addSpace();
+
+    mainContainer.addSpace();
+    mainContainer.add(title, { align: "center" });
+    mainContainer.add(this.boardsContainer, { align: "center" });
+    mainContainer.addSpace();
+    mainContainer.layout();
+
     this.utils.animateAlpha(title);
     this.utils.animateFadeLeft(this.leftPanel);
     this.utils.animateFadeRight(this.rightPanel);
@@ -175,22 +203,21 @@ export class GameScene extends BaseScene {
       this.currentResultIcon.destroy();
     }
 
-    const icon = this.utils.createImage(iconKey, {
-      width: this.utils._px(50),
-      height: this.utils._px(50),
-    });
+    const icon = this.add
+      .image(0, 0, iconKey)
+      .setDisplaySize(this.utils._px(50), this.utils._px(50));
 
-    this.boardsContainer.add(icon);
-    icon.setOrigin(0.5);
-    icon.setPosition(
-      this.boardsContainer.width / 2,
-      this.boardsContainer.height / 2,
-    );
+    this.boardsContainer.pin(icon);
+    const { x, y } = this.utils._getGlobalPosition(this.boardsContainer);
+
+    icon.setPosition(x, y);
     this.currentResultIcon = icon;
+
+    const targetScale = icon.scaleX;
 
     this.tweens.add({
       targets: icon,
-      scale: { from: 0, to: icon.scale },
+      scale: { from: 0, to: targetScale },
       duration: 300,
       ease: "Back.out",
       onComplete: () => {
@@ -199,7 +226,7 @@ export class GameScene extends BaseScene {
           this.tweens.add({
             targets: icon,
             alpha: 0,
-            scale: 0.5,
+            scale: targetScale * 0.5,
             duration: 300,
             ease: "Cubic.In",
             onComplete: () => {
@@ -218,32 +245,44 @@ export class GameScene extends BaseScene {
     let count = this.startCountdown;
     const panelSize = this.utils._px(100);
 
-    const countText = this.utils.createText(count.toString(), {
-      style: {
-        fontSize: `${this.utils._px(48)}px`,
-        fontStyle: "600",
-        color: "#000000",
-      },
-    });
+    const countText = this.utils
+      .createText(count.toString(), {
+        style: {
+          fontSize: `${this.utils._px(48)}px`,
+          fontStyle: "600",
+          color: "#000000",
+        },
+      })
+      .setOrigin(0.5)
+      .setDepth(1);
 
-    const panel = this.utils.createPanel(countText, {
+    const panel = this.rexUI.add.label({
       width: panelSize,
       height: panelSize,
-      borderRadius: panelSize / 2,
-      justify: "center",
+      background: this.rexUI.add.roundRectangle(
+        0,
+        0,
+        2,
+        2,
+        panelSize / 2,
+        0xffffff,
+      ),
       align: "center",
+      text: countText,
     });
 
-    const container = this.utils.createStack({
-      fillX: true,
-      fillY: true,
-      justify: "center",
-      align: "center",
-      items: [panel],
+    const container = this.rexUI.add.sizer({
+      width: this.utils.gameWidth,
+      height: this.utils.gameHeight,
+      x: this.utils.gameWidth / 2,
+      y: this.utils.gameHeight / 2,
     });
 
-    countText.setOrigin(0.5);
-    countText.setPosition(panelSize / 2, panelSize / 2);
+    container.addSpace();
+    container.add(panel, { align: "center" });
+    container.addSpace();
+    container.layout();
+
     panel.setAlpha(0);
     this.tweens.add({
       targets: panel,
@@ -259,6 +298,7 @@ export class GameScene extends BaseScene {
         count--;
         if (count > 0) {
           countText.setText(count.toString());
+          panel.layout();
           this.tweens.add({
             targets: countText,
             scale: { from: 0, to: 1 },
@@ -282,6 +322,7 @@ export class GameScene extends BaseScene {
   }
 
   private _nextQuestion() {
+    console.log(this.currentQuestionIndex);
     this.currentQuestionIndex++;
 
     if (this.currentQuestionIndex >= this.questions.length) {
@@ -291,18 +332,26 @@ export class GameScene extends BaseScene {
 
     this.currentQuestion = this.questions[this.currentQuestionIndex];
     if (this.currentQuestion) {
-      this.leftText.setAlpha(0);
-      this.rightText.setAlpha(0);
       this.leftText.setText(this.currentQuestion.leftStatement);
       this.rightText.setText(this.currentQuestion.rightStatement);
-      const targetLeftX = (this.leftPanel.width - this.leftText.width) / 2;
-      const targetRightX = (this.rightPanel.width - this.rightText.width) / 2;
-      this.leftText.x = targetLeftX - 84;
-      this.rightText.x = targetRightX + 84;
+
+      this.leftPanel.layout();
+      this.rightPanel.layout();
+
+      this.tweens.killTweensOf([this.leftText, this.rightText]);
+
+      const leftTargetX = this.leftText.x;
+      const rightTargetX = this.rightText.x;
+
+      this.leftText.setAlpha(0);
+      this.rightText.setAlpha(0);
+
+      this.leftText.x = leftTargetX - 84;
+      this.rightText.x = rightTargetX + 84;
 
       this.tweens.add({
         targets: this.leftText,
-        x: targetLeftX,
+        x: leftTargetX,
         alpha: 1,
         duration: 300,
         ease: "Back.out",
@@ -310,7 +359,7 @@ export class GameScene extends BaseScene {
 
       this.tweens.add({
         targets: this.rightText,
-        x: targetRightX,
+        x: rightTargetX,
         alpha: 1,
         duration: 300,
         ease: "Back.out",
