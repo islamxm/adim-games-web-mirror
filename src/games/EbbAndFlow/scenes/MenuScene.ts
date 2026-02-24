@@ -74,7 +74,7 @@ export class MenuScene extends BaseScene {
       width: this.utils.gameWidth,
       height: this.utils.gameHeight,
       orientation: "y",
-      space: { item: this.utils._px(8) },
+      space: { item: this.utils._px(34) },
     });
     container.addSpace();
     btns.forEach((btn) => container.add(btn, { align: "center" }));
