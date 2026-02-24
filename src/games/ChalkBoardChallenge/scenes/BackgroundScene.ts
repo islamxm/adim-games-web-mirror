@@ -7,6 +7,6 @@ export class BackgroundScene extends BaseScene {
   }
 
   create() {
-    this.utils.createSceneBg("bg");
+    // this.utils.createSceneBg("bg");
   }
 }

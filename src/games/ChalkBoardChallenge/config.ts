@@ -30,7 +30,7 @@ export function createGameConfig(
     width: bounds.width * SCALE_COEF,
     height: bounds.height * SCALE_COEF,
     parent,
-    backgroundColor: "#1a472a",
+    backgroundColor: "#fff",
     scale: {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
