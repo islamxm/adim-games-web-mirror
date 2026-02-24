@@ -371,7 +371,10 @@ export class TutorialScene extends BaseScene {
     }
 
     const y =
-      targetObjectPos.y + targetObject.height / 2 + offset + object.height / 2;
+      targetObjectPos.y +
+      targetObject.height / 2 +
+      offset * 2 +
+      object.height / 2;
     let x = targetObjectPos.x;
 
     if (x - object.width / 2 < 0) {

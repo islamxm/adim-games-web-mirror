@@ -14,6 +14,7 @@ export default class GameScene extends BaseScene {
   }
 
   create() {
+    this.scene.launch(SCENES.MENU);
     const { width, height } = this.scale;
 
     this.rexUI.add

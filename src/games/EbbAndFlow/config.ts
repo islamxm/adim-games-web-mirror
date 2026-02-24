@@ -3,6 +3,7 @@ import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js";
 import { BootScene } from "./scenes/BootScene";
 import { BackgroundScene } from "./scenes/BackgroundScene";
 import GameScene from "./scenes/GameScene";
+import { MenuScene } from "./scenes/MenuScene";
 
 export const SCENES = {
   HUD: "HUDScene",
@@ -34,7 +35,7 @@ export function createGameConfig(
       antialias: true,
       pixelArt: false,
     },
-    scene: [BootScene, BackgroundScene, GameScene],
+    scene: [BootScene, BackgroundScene, GameScene, MenuScene],
     callbacks: {
       postBoot: (game) => {
         game.registry.set("bounds", bounds);

@@ -4,13 +4,12 @@ import { useEffect, useRef } from "react";
 import * as Phaser from "phaser";
 
 import { createGameConfig } from "./config";
-import { useNavigate, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import type { GameWindowBounds } from "@/core/model";
 
 const CONTAINER_ID = "chalkboard-challenge-game";
 
 export const Game = () => {
-  const navigate = useNavigate();
   const gameRef = useRef<Phaser.Game | null>(null);
   const [searchParams] = useSearchParams();
 
