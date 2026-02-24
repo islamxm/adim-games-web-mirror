@@ -10,6 +10,8 @@ import { StartScene } from "./scenes/StartScene";
 import { TutorialScene } from "./scenes/TutorialScene";
 import { GameOverScene } from "./scenes/GameOverScene";
 
+export const GAME_NAME = "ebb-and-flow";
+
 export const SCENES = {
   HUD: "HUDScene",
   MENU: "MenuScene",

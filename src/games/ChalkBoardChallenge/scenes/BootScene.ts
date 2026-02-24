@@ -38,11 +38,11 @@ export class BootScene extends BaseScene {
 
     this.load.json(
       "questions",
-      `${import.meta.env.VITE_API_URL}games/chalkboard/questions`,
+      `${import.meta.env.VITE_API_URL}game-api/chalkboard/questions`,
     );
     this.load.json(
       "top-score",
-      `${import.meta.env.VITE_API_URL}games/chalkboard/score?userId=${24}`,
+      `${import.meta.env.VITE_API_URL}game-api/chalkboard/score`,
     );
   }
 

@@ -9,6 +9,8 @@ import { StartScene } from "./scenes/StartScene";
 import { BackgroundScene } from "./scenes/BackgroundScene";
 import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js";
 
+export const GAME_NAME = "chalkboard-challenge";
+
 export const SCENES = {
   HUD: "HUDScene",
   MENU: "MenuScene",

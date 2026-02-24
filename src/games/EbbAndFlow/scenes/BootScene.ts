@@ -3,7 +3,6 @@ import { SCENES } from "../config";
 import bgImg from "../assets/bg.png";
 import wrongIcon from "../assets/wrong-icon.png";
 import rightIcon from "../assets/right-icon.png";
-import pauseIcon from "../../../assets/pause-icon.png";
 import playIcon from "../../../assets/play-icon.png";
 import restartIcon from "../../../assets/restart-icon.png";
 import quitIcon from "../../../assets/quit-icon.png";
@@ -32,7 +31,6 @@ export class BootScene extends BaseScene {
     this.load.image("bg", bgImg);
     this.load.image("wrong-icon", wrongIcon);
     this.load.image("right-icon", rightIcon);
-    this.load.image("pause-icon", pauseIcon);
     this.load.image("restart-icon", restartIcon);
     this.load.image("play-icon", playIcon);
     this.load.image("quit-icon", quitIcon);
