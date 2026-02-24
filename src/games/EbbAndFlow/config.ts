@@ -1,9 +1,14 @@
 import { SCALE_COEF, type GameWindowBounds } from "@/core/model/game";
 import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js";
+import RexGesturesPlugin from "phaser3-rex-plugins/plugins/gestures-plugin.js";
 import { BootScene } from "./scenes/BootScene";
 import { BackgroundScene } from "./scenes/BackgroundScene";
 import GameScene from "./scenes/GameScene";
 import { MenuScene } from "./scenes/MenuScene";
+import { HUDScene } from "./scenes/HUDScene";
+import { StartScene } from "./scenes/StartScene";
+import { TutorialScene } from "./scenes/TutorialScene";
+import { GameOverScene } from "./scenes/GameOverScene";
 
 export const SCENES = {
   HUD: "HUDScene",
@@ -35,7 +40,16 @@ export function createGameConfig(
       antialias: true,
       pixelArt: false,
     },
-    scene: [BootScene, BackgroundScene, GameScene, MenuScene],
+    scene: [
+      BootScene,
+      BackgroundScene,
+      StartScene,
+      TutorialScene,
+      GameScene,
+      HUDScene,
+      MenuScene,
+      GameOverScene,
+    ],
     callbacks: {
       postBoot: (game) => {
         game.registry.set("bounds", bounds);
@@ -49,15 +63,58 @@ export function createGameConfig(
     plugins: {
       scene: [
         { key: "rexUI", plugin: RexUIPlugin, start: true, mapping: "rexUI" },
+        {
+          key: "rexGestures",
+          plugin: RexGesturesPlugin,
+          start: true,
+          mapping: "rexGestures",
+        },
       ],
     },
   };
 }
 
-type CorrectAnswer = "LEFT" | "RIGHT" | "EQUAL";
-
+export type Direction = "TOP" | "BOTTOM" | "LEFT" | "RIGHT";
+export type LeafType = "yellow" | "green";
 export type Question = {
-  leftStatement: string;
-  rightStatement: string;
-  correct: CorrectAnswer;
+  leafType: LeafType;
+  direction: Direction;
+  moveDirection: Direction;
+  correct: Direction;
 };
+
+const colors: Array<LeafType> = ["green", "yellow"];
+const directions: Array<Direction> = ["TOP", "BOTTOM", "LEFT", "RIGHT"];
+
+const correctMap: Record<LeafType, "moveDirection" | "direction"> = {
+  yellow: "moveDirection",
+  green: "direction",
+};
+
+export class QuestionObject {
+  static generateQuestion() {
+    const color = this.color;
+    const direction = this.direction;
+    const moveDirection = this.direction;
+    const raw: Pick<Question, "direction" | "moveDirection"> = {
+      direction,
+      moveDirection,
+    };
+
+    const question: Question = {
+      leafType: color,
+      direction,
+      moveDirection,
+      correct: raw[correctMap[color]],
+    };
+    return question;
+  }
+
+  static get color(): LeafType {
+    return colors[Math.floor(Math.random() * 2)];
+  }
+
+  static get direction(): Direction {
+    return directions[Math.floor(Math.random() * 4)];
+  }
+}

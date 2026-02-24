@@ -15,52 +15,51 @@ export class MenuScene extends BaseScene {
     });
 
     this.add
-      .rectangle(0, 0, this.utils.gameWidth, this.utils.gameHeight, 0x1a472a)
+      .rectangle(0, 0, this.utils.gameWidth, this.utils.gameHeight, 0x041716)
       .setOrigin(0, 0)
       .setInteractive();
 
-    const labels = ["Resume", "Restart", "Quit"];
-    const iconMap: Record<string, string> = {
-      Resume: "play-icon",
-      Restart: "restart-icon",
-      Quit: "quit-icon",
-    };
+    const labels = ["DOWAM ET", "TÄZEDEN BAŞLA", "OÝUNDAN ÇYK"];
 
     const btns: Array<any> = [];
 
     labels.forEach((label) => {
       const btn = this.rexUI.add.label({
-        width: this.utils._px(270),
-        background: this.rexUI.add
-          .roundRectangle(0, 0, 0, 0, 0, this.utils._hexToDecColor("#000000"))
-          .setAlpha(0.4),
+        width: this.utils._px(248),
+        height: this.utils._px(50),
+        background: this.add
+          .image(0, 0, "long-yellow-btn-bg")
+          .setDisplaySize(this.utils._px(248), this.utils._px(50)),
         space: {
-          iconLeft: this.utils._px(16),
           top: this.utils._px(12),
           bottom: this.utils._px(12),
-          left: this.utils._px(16),
-          right: this.utils._px(16),
+          left: this.utils._px(22),
+          right: this.utils._px(22),
         },
-        icon: this.add
-          .image(0, 0, iconMap[label])
-          .setDisplaySize(this.utils._px(24), this.utils._px(24)),
-        text: this.utils.createText(label, {
-          style: { fontSize: `${this.utils._px(18)}px`, color: "#FFFFFF" },
-        }),
-        align: "left",
+        text: this.utils
+          .createText(label, {
+            style: {
+              fontSize: `${this.utils._px(24)}px`,
+              color: "#FFFFFF",
+              fontFamily: "Nerko-One-Font",
+            },
+          })
+          .setShadow(5, 5, "#EC5616", 0, true, true),
+        align: "center",
       });
       btn.layout();
       btn.setInteractive().on("pointerdown", () => {
-        if (label === "Resume") {
+        this.sound.play("click-sound");
+        if (label === "DOWAM ET") {
           this.closeMenu();
         }
-        if (label === "Restart") {
+        if (label === "TÄZEDEN BAŞLA") {
           this.closeMenu();
           this.registry.set("score", 0);
-          this.scene.start(SCENES.GAME);
           this.game.events.emit("restart");
+          this.scene.start(SCENES.GAME);
         }
-        if (label === "Quit") {
+        if (label === "OÝUNDAN ÇYK") {
           this.game.destroy(true);
           this.registry.get("quit")?.();
         }
@@ -74,7 +73,7 @@ export class MenuScene extends BaseScene {
       width: this.utils.gameWidth,
       height: this.utils.gameHeight,
       orientation: "y",
-      space: { item: this.utils._px(34) },
+      space: { item: this.utils._px(20) },
     });
     container.addSpace();
     btns.forEach((btn) => container.add(btn, { align: "center" }));

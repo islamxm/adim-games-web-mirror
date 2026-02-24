@@ -44,7 +44,7 @@ export class GameScene extends BaseScene {
 
     this.game.events.on("answer", this.handleAnswer, this);
     this.scene.stop(SCENES.HUD);
-    this.createCountdown(() => {
+    super.createCountdown(this.startCountdown, () => {
       this.createGame();
       this._startTime();
       this.scene.launch(SCENES.HUD);
@@ -241,85 +241,85 @@ export class GameScene extends BaseScene {
     });
   }
 
-  createCountdown(onComplete: () => void) {
-    let count = this.startCountdown;
-    const panelSize = this.utils._px(100);
+  // createCountdown(onComplete: () => void) {
+  //   let count = this.startCountdown;
+  //   const panelSize = this.utils._px(100);
 
-    const countText = this.utils
-      .createText(count.toString(), {
-        style: {
-          fontSize: `${this.utils._px(48)}px`,
-          fontStyle: "600",
-          color: "#000000",
-        },
-      })
-      .setOrigin(0.5)
-      .setDepth(1);
+  //   const countText = this.utils
+  //     .createText(count.toString(), {
+  //       style: {
+  //         fontSize: `${this.utils._px(48)}px`,
+  //         fontStyle: "600",
+  //         color: "#000000",
+  //       },
+  //     })
+  //     .setOrigin(0.5)
+  //     .setDepth(1);
 
-    const panel = this.rexUI.add.label({
-      width: panelSize,
-      height: panelSize,
-      background: this.rexUI.add.roundRectangle(
-        0,
-        0,
-        2,
-        2,
-        panelSize / 2,
-        0xffffff,
-      ),
-      align: "center",
-      text: countText,
-    });
+  //   const panel = this.rexUI.add.label({
+  //     width: panelSize,
+  //     height: panelSize,
+  //     background: this.rexUI.add.roundRectangle(
+  //       0,
+  //       0,
+  //       2,
+  //       2,
+  //       panelSize / 2,
+  //       0xffffff,
+  //     ),
+  //     align: "center",
+  //     text: countText,
+  //   });
 
-    const container = this.rexUI.add.sizer({
-      width: this.utils.gameWidth,
-      height: this.utils.gameHeight,
-      x: this.utils.gameWidth / 2,
-      y: this.utils.gameHeight / 2,
-    });
+  //   const container = this.rexUI.add.sizer({
+  //     width: this.utils.gameWidth,
+  //     height: this.utils.gameHeight,
+  //     x: this.utils.gameWidth / 2,
+  //     y: this.utils.gameHeight / 2,
+  //   });
 
-    container.addSpace();
-    container.add(panel, { align: "center" });
-    container.addSpace();
-    container.layout();
+  //   container.addSpace();
+  //   container.add(panel, { align: "center" });
+  //   container.addSpace();
+  //   container.layout();
 
-    panel.setAlpha(0);
-    this.tweens.add({
-      targets: panel,
-      alpha: 1,
-      duration: 200,
-      ease: "Back.out",
-    });
+  //   panel.setAlpha(0);
+  //   this.tweens.add({
+  //     targets: panel,
+  //     alpha: 1,
+  //     duration: 200,
+  //     ease: "Back.out",
+  //   });
 
-    const timer = this.time.addEvent({
-      delay: 1000,
-      repeat: count - 1,
-      callback: () => {
-        count--;
-        if (count > 0) {
-          countText.setText(count.toString());
-          panel.layout();
-          this.tweens.add({
-            targets: countText,
-            scale: { from: 0, to: 1 },
-            duration: 200,
-            ease: "Back.out",
-          });
-        } else {
-          this.tweens.add({
-            targets: panel,
-            alpha: 0,
-            duration: 200,
-            ease: "Back.in",
-            onComplete: () => {
-              container.destroy();
-              onComplete();
-            },
-          });
-        }
-      },
-    });
-  }
+  //   const timer = this.time.addEvent({
+  //     delay: 1000,
+  //     repeat: count - 1,
+  //     callback: () => {
+  //       count--;
+  //       if (count > 0) {
+  //         countText.setText(count.toString());
+  //         panel.layout();
+  //         this.tweens.add({
+  //           targets: countText,
+  //           scale: { from: 0, to: 1 },
+  //           duration: 200,
+  //           ease: "Back.out",
+  //         });
+  //       } else {
+  //         this.tweens.add({
+  //           targets: panel,
+  //           alpha: 0,
+  //           duration: 200,
+  //           ease: "Back.in",
+  //           onComplete: () => {
+  //             container.destroy();
+  //             onComplete();
+  //           },
+  //         });
+  //       }
+  //     },
+  //   });
+  // }
 
   private _nextQuestion() {
     console.log(this.currentQuestionIndex);
@@ -370,7 +370,7 @@ export class GameScene extends BaseScene {
   private _startTime() {
     if (this.timerEvent) this.timerEvent.destroy();
 
-    this.game.events.emit("timer-update", this._formatTime(this.gameDuration));
+    this.game.events.emit("timer-update", super.formatTime(this.gameDuration));
 
     this.timerEvent = this.time.addEvent({
       delay: 1000,
@@ -378,9 +378,11 @@ export class GameScene extends BaseScene {
         this.gameDuration--;
         this.game.events.emit(
           "timer-update",
-          this._formatTime(this.gameDuration),
+          super.formatTime(this.gameDuration),
         );
-
+        if (this.gameDuration <= 5) {
+          this.sound.play("tick-sound");
+        }
         if (this.gameDuration <= 0) {
           this.timerEvent.destroy();
           this._endGame();
@@ -389,12 +391,6 @@ export class GameScene extends BaseScene {
       callbackScope: this,
       loop: true,
     });
-  }
-
-  private _formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
 
   private _endGame() {

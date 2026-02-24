@@ -8,8 +8,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<GamesPage />} />
-        <Route path={getGamesPage()} element={<GamesPage />} />
+        <Route path="/" element={<></>} />
         <Route
           path={getGamePage("chalkboard_challenge")}
           element={<ChalkBoardChallengeGame />}

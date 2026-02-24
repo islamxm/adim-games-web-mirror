@@ -51,6 +51,7 @@ export class MenuScene extends BaseScene {
       });
       btn.layout();
       btn.setInteractive().on("pointerdown", () => {
+        this.sound.play("click-sound");
         if (label === "Resume") {
           this.closeMenu();
         }
