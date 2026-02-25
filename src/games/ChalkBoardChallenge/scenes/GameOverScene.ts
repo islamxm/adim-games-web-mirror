@@ -103,6 +103,16 @@ export class GameOverScene extends BaseScene {
           Authorization: `Bearer ${this.registry.get("gameSessionToken")}`,
         },
       });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}game-api/chalkboard/score`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.registry.get("gameSessionToken")}`,
+          },
+        },
+      );
+      const topScore = await res.json();
+      this.registry.set("top-score", topScore?.score);
     } catch (err) {
       console.error("SAVE SCORE ERROR");
     }
