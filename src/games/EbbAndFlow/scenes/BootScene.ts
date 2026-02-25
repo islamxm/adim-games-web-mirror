@@ -56,7 +56,7 @@ export class BootScene extends BaseScene {
       xhrSettings: {
         header: "Authorization",
         headerValue: `Bearer ${this.registry.get("gameSessionToken")}`,
-        responseType: "json",
+        responseType: "",
       },
     });
   }
