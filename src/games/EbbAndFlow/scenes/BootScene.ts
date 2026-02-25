@@ -50,6 +50,8 @@ export class BootScene extends BaseScene {
 
     this.load.font("Nerko-One-Font", nerkoOneFont);
 
+    console.log(this.registry.get("gameSessionToken"));
+
     this.load.json({
       key: "top-score",
       url: `${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`,
