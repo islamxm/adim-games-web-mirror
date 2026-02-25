@@ -123,6 +123,9 @@ export class GameOverScene extends BaseScene {
         body: JSON.stringify({
           score: this.registry.get("score"),
         }),
+        headers: {
+          Authorization: `Berare ${this.registry.get("gameSessionToken")}`,
+        },
       });
     } catch (err) {
       console.error("SAVE SCORE ERROR");

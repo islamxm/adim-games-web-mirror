@@ -50,10 +50,15 @@ export class BootScene extends BaseScene {
 
     this.load.font("Nerko-One-Font", nerkoOneFont);
 
-    this.load.json(
-      "top-score",
-      `${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`,
-    );
+    this.load.json({
+      key: "top-score",
+      url: `${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`,
+      xhrSettings: {
+        header: "Authorization",
+        headerValue: `Bearer ${this.registry.get("gameSessionToken")}`,
+        responseType: "json",
+      },
+    });
   }
 
   create() {

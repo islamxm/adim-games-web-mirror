@@ -36,14 +36,24 @@ export class BootScene extends BaseScene {
     this.load.audio("correct-sound", correctSound);
     this.load.audio("wrong-sound", wrongSound);
 
-    this.load.json(
-      "questions",
-      `${import.meta.env.VITE_API_URL}game-api/chalkboard/questions`,
-    );
-    this.load.json(
-      "top-score",
-      `${import.meta.env.VITE_API_URL}game-api/chalkboard/score`,
-    );
+    this.load.json({
+      key: "questions",
+      url: `${import.meta.env.VITE_API_URL}game-api/chalkboard/questions`,
+      xhrSettings: {
+        header: "Authorization",
+        headerValue: `Bearer ${this.registry.get("gameSessionToken")}`,
+        responseType: "json",
+      },
+    });
+    this.load.json({
+      key: "top-score",
+      url: `${import.meta.env.VITE_API_URL}game-api/chalkboard/score`,
+      xhrSettings: {
+        header: "Authorization",
+        headerValue: `Bearer ${this.registry.get("gameSessionToken")}`,
+        responseType: "json",
+      },
+    });
   }
 
   create() {
