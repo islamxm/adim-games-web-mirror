@@ -112,7 +112,7 @@ export class GameOverScene extends BaseScene {
         },
       );
       const topScore = await res.json();
-      this.registry.set("top-score", topScore?.score);
+      this.registry.set("top-score", topScore?.bestScore);
     } catch (err) {
       console.error("SAVE SCORE ERROR");
     }
