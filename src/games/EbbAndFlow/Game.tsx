@@ -10,7 +10,6 @@ import type { GameWindowBounds } from "@/core/model";
 const CONTAINER_ID = "chalkboard-challenge-game";
 
 export const Game = () => {
-  const navigate = useNavigate();
   const gameRef = useRef<Phaser.Game | null>(null);
   const [searchParams] = useSearchParams();
 
@@ -18,8 +17,6 @@ export const Game = () => {
   const height = searchParams.get("height");
   const topInset = searchParams.get("topInset");
   const bottomInset = searchParams.get("bottomInset");
-
-  const userId = (searchParams.get("userId") || "24") as string;
 
   const isAvilableBounds = !!(width && height && topInset && bottomInset);
 
@@ -34,7 +31,6 @@ export const Game = () => {
     };
     const config = createGameConfig(CONTAINER_ID, bounds, {
       quit: () => console.log("SEND EVENT TO NATIVE DEVICE"),
-      userId,
     });
     gameRef.current = new Phaser.Game(config);
 

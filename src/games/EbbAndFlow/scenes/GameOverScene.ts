@@ -115,4 +115,17 @@ export class GameOverScene extends BaseScene {
       this.utils.animatedSceneChange(SCENES.GAME);
     });
   }
+
+  async saveScore() {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`, {
+        method: "POST",
+        body: JSON.stringify({
+          score: this.registry.get("score"),
+        }),
+      });
+    } catch (err) {
+      console.error("SAVE SCORE ERROR");
+    }
+  }
 }

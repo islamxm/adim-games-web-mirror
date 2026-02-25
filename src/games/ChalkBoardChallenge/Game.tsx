@@ -18,8 +18,6 @@ export const Game = () => {
   const topInset = searchParams.get("topInset");
   const bottomInset = searchParams.get("bottomInset");
 
-  const userId = (searchParams.get("userId") || "24") as string;
-
   const isAvilableBounds = !!(width && height && topInset && bottomInset);
 
   useEffect(() => {
@@ -33,7 +31,6 @@ export const Game = () => {
     };
     const config = createGameConfig(CONTAINER_ID, bounds, {
       quit: () => console.log("SEND EVENT TO NATIVE DEVICE"),
-      userId,
     });
     gameRef.current = new Phaser.Game(config);
 

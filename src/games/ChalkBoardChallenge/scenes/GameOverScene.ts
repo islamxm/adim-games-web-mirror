@@ -94,11 +94,10 @@ export class GameOverScene extends BaseScene {
 
   async saveScore() {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}games/chalkboard/score`, {
+      await fetch(`${import.meta.env.VITE_API_URL}game-api/chalkboard/score`, {
         method: "POST",
         body: JSON.stringify({
           score: this.registry.get("score"),
-          userId: this.registry.get("userId") || 24,
         }),
       });
     } catch (err) {
