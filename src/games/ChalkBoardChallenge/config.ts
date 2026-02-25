@@ -52,7 +52,7 @@ export function createGameConfig(
       TutorialScene,
     ],
     callbacks: {
-      postBoot: (game) => {
+      preBoot: (game) => {
         game.registry.set("bounds", bounds);
         if (externalData) {
           Object.entries(externalData).forEach(([key, value]) => {
