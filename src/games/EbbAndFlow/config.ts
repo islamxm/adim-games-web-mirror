@@ -55,7 +55,6 @@ export function createGameConfig(
     callbacks: {
       preBoot: (game) => {
         game.registry.set("bounds", bounds);
-        console.log("URL-dan alanan token: ", externalData?.gameSessionToken);
         if (externalData) {
           Object.entries(externalData).forEach(([key, value]) => {
             game.registry.set(key, value);

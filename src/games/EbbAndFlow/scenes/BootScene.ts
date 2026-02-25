@@ -50,11 +50,6 @@ export class BootScene extends BaseScene {
 
     this.load.font("Nerko-One-Font", nerkoOneFont);
 
-    console.log(
-      "Oyuna girizilen token: ",
-      this.registry.get("gameSessionToken"),
-    );
-
     this.load.json({
       key: "top-score",
       url: `${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`,
@@ -67,7 +62,6 @@ export class BootScene extends BaseScene {
   }
 
   create() {
-    // const questions = this.cache.json.get("questions");
     const topScore = this.cache.json.get("top-score") || 0;
     this.registry.set("top-score", topScore);
     this.scene.launch(SCENES.BACKGROUND);
