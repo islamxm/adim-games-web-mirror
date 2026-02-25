@@ -58,7 +58,7 @@ export class BootScene extends BaseScene {
 
   create() {
     const questions = this.cache.json.get("questions");
-    const topScore = this.cache.json.get("top-score") || 0;
+    const topScore = this.cache.json.get("top-score")?.bestScore || 0;
     this.registry.set("questions", questions?.questions || []);
     this.registry.set("top-score", topScore);
     this.scene.launch(SCENES.BACKGROUND);

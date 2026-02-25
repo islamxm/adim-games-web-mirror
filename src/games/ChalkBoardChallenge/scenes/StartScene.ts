@@ -60,12 +60,9 @@ export class StartScene extends BaseScene {
       icon: this.add
         .image(0, 0, "fire-icon")
         .setDisplaySize(this.utils._px(20), this.utils._px(20)),
-      text: this.utils.createText(
-        this.registry.get("top-score")?.bestScore || "0",
-        {
-          style: { color: "#000000" },
-        },
-      ),
+      text: this.utils.createText(this.registry.get("top-score") || "0", {
+        style: { color: "#000000" },
+      }),
       space: {
         icon: this.utils._px(10),
         left: this.utils._px(8),
