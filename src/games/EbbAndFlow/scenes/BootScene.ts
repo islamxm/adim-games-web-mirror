@@ -50,7 +50,10 @@ export class BootScene extends BaseScene {
 
     this.load.font("Nerko-One-Font", nerkoOneFont);
 
-    console.log(this.registry.get("gameSessionToken"));
+    console.log(
+      "Oyuna girizilen token: ",
+      this.registry.get("gameSessionToken"),
+    );
 
     this.load.json({
       key: "top-score",
