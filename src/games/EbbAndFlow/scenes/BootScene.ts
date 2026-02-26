@@ -51,7 +51,7 @@ export class BootScene extends BaseScene {
     this.load.font("Nerko-One-Font", nerkoOneFont);
 
     this.load.json({
-      key: "top-score",
+      key: "gameData",
       url: `${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`,
       xhrSettings: {
         header: "Authorization",
@@ -62,9 +62,8 @@ export class BootScene extends BaseScene {
   }
 
   create() {
-    const topScore = this.cache.json.get("top-score")?.bestScore || 0;
-
-    this.registry.set("top-score", topScore);
+    const gameData = this.cache.json.get("top-score");
+    this.registry.set("gameData", gameData);
     this.scene.launch(SCENES.BACKGROUND);
     this.utils.animatedSceneChange(SCENES.START);
   }

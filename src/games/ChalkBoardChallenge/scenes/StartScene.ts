@@ -60,9 +60,12 @@ export class StartScene extends BaseScene {
       icon: this.add
         .image(0, 0, "fire-icon")
         .setDisplaySize(this.utils._px(20), this.utils._px(20)),
-      text: this.utils.createText(this.registry.get("top-score") || "0", {
-        style: { color: "#000000" },
-      }),
+      text: this.utils.createText(
+        this.registry.get("gameData")?.bestScore || 0,
+        {
+          style: { color: "#000000" },
+        },
+      ),
       space: {
         icon: this.utils._px(10),
         left: this.utils._px(8),
@@ -78,8 +81,15 @@ export class StartScene extends BaseScene {
     stack.add(bestScore, { align: "center" });
     stack.addSpace();
     stack.layout();
+    console.log(this.registry.get("gameData"));
     button.setInteractive().on("pointerdown", () => {
-      this.utils.animatedSceneChange(SCENES.TUTORIAL);
+      const isFirstTime = this.registry.get("gameData")?.lastScore === 0;
+
+      if (isFirstTime) {
+        this.utils.animatedSceneChange(SCENES.TUTORIAL);
+      } else {
+        this.utils.animatedSceneChange(SCENES.GAME);
+      }
     });
   }
 }

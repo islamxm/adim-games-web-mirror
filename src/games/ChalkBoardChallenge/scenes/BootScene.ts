@@ -46,7 +46,7 @@ export class BootScene extends BaseScene {
       },
     });
     this.load.json({
-      key: "top-score",
+      key: "gameData",
       url: `${import.meta.env.VITE_API_URL}game-api/chalkboard/score`,
       xhrSettings: {
         header: "Authorization",
@@ -58,9 +58,9 @@ export class BootScene extends BaseScene {
 
   create() {
     const questions = this.cache.json.get("questions");
-    const topScore = this.cache.json.get("top-score")?.bestScore || 0;
+    const gameData = this.cache.json.get("gameData");
     this.registry.set("questions", questions?.questions || []);
-    this.registry.set("top-score", topScore);
+    this.registry.set("gameData", gameData);
     this.scene.launch(SCENES.BACKGROUND);
     this.utils.animatedSceneChange(SCENES.START);
   }

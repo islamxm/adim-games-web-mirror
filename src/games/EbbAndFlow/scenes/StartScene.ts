@@ -63,13 +63,16 @@ export class StartScene extends BaseScene {
           { align: "left" },
         )
         .add(
-          this.utils.createText(this.registry.get("top-score"), {
-            style: {
-              fontFamily: "Nerko-One-Font",
-              fontSize: this.utils._px(36),
-              color: "#ffffff",
+          this.utils.createText(
+            this.registry.get("gameData")?.bestScore || "0",
+            {
+              style: {
+                fontFamily: "Nerko-One-Font",
+                fontSize: this.utils._px(36),
+                color: "#ffffff",
+              },
             },
-          }),
+          ),
           { align: "left" },
         ),
     );
@@ -120,7 +123,12 @@ export class StartScene extends BaseScene {
     button.setInteractive();
     button.on("pointerdown", () => {
       this.sound.play("click-sound");
-      this.utils.animatedSceneChange(SCENES.TUTORIAL);
+      const isFirstTime = this.registry.get("gameData")?.lastScore === 0;
+      if (isFirstTime) {
+        this.utils.animatedSceneChange(SCENES.TUTORIAL);
+      } else {
+        this.utils.animatedSceneChange(SCENES.GAME);
+      }
     });
   }
 }

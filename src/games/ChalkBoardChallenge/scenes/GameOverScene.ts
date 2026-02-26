@@ -111,8 +111,8 @@ export class GameOverScene extends BaseScene {
           },
         },
       );
-      const topScore = await res.json();
-      this.registry.set("top-score", topScore?.bestScore);
+      const gameData = await res.json();
+      this.registry.set("gameData", gameData);
     } catch (err) {
       console.error("SAVE SCORE ERROR");
     }

@@ -29,3 +29,11 @@ export type GameWindowBounds = {
   topInset: number;
   bottomInset: number;
 };
+
+export type GameData = {
+  userId: number;
+  bestScore: number;
+  createdAt: string;
+  lastScore: number;
+  updatedAt: number;
+};

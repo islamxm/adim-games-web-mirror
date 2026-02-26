@@ -2,12 +2,14 @@ import { BaseScene } from "@/core/lib/baseScene";
 import { SCENES } from "../config";
 import type Label from "phaser3-rex-plugins/templates/ui/label/Label";
 import type Sizer from "phaser3-rex-plugins/templates/ui/sizer/Sizer";
+import type RoundRectangle from "phaser3-rex-plugins/plugins/roundrectangle";
 
 export class TutorialScene extends BaseScene {
   buttonText: string = "INDIKI";
   button!: Label;
   currentScreen!: Sizer;
   step: number = 1;
+  field!: RoundRectangle;
 
   constructor() {
     super({ sceneKey: SCENES.TUTORIAL });
@@ -15,7 +17,7 @@ export class TutorialScene extends BaseScene {
 
   create() {
     this.firstStep();
-    this.createStartButton();
+    this.createField();
   }
 
   firstStep() {
@@ -177,64 +179,29 @@ export class TutorialScene extends BaseScene {
     });
   }
 
-  createStartButton() {
-    if (this.button) this.button.destroy();
-    this.button = this.rexUI.add.label({
-      y:
-        this.utils.gameHeight -
-        this.utils._px(54) / 2 -
-        this.utils.bottomInset -
-        this.utils._px(60),
+  createField() {
+    this.field = this.rexUI.add.roundRectangle({
       x: this.utils.gameWidth / 2,
-      width: this.utils._px(150),
-      height: this.utils._px(54),
-      background: this.add
-        .image(0, 0, "short-yellow-btn-bg")
-        .setDisplaySize(this.utils._px(150), this.utils._px(54)),
-      text: this.utils.createText(this.buttonText, {
-        style: {
-          fontSize: `${this.utils._px(24)}px`,
-          align: "center",
-          fontFamily: "Nerko-One-Font",
-        },
-      }),
-      align: "center",
-      space: {
-        top: this.utils._px(12),
-        bottom: this.utils._px(12),
-        left: this.utils._px(12),
-        right: this.utils._px(12),
-      },
+      y: this.utils.gameHeight / 2,
+      height: this.utils.gameHeight,
+      width: this.utils.gameWidth,
     });
-    this.button.layout();
-    this.button.setInteractive();
-    this.button.on("pointerdown", () => {
-      this.step++;
-      this.sound.play("click-sound");
-      this.nextStep();
-    });
-  }
+    this.field.setInteractive();
 
-  nextStep() {
-    if (this.currentScreen) {
+    const swipe = this.rexGestures.add.swipe(this.field, {
+      threshold: this.utils._px(50),
+      velocityThreshold: this.utils._px(1000),
+      dir: "4dir",
+    });
+
+    swipe.on("swipe", (swipeObj: any) => {
       this.tweens.killTweensOf([this.currentScreen]);
-      this.tweens.add({
-        targets: this.currentScreen,
-        alpha: 0,
-        duration: 400,
-        onComplete: () => {
-          this.currentScreen.destroy();
-          if (this.step === 1) {
-            this.firstStep();
-          }
-          if (this.step === 2) {
-            this.secondStep();
-          }
-          if (this.step === 3) {
-            this.utils.animatedSceneChange(SCENES.GAME);
-          }
-        },
-      });
-    }
+      if (swipeObj.right) {
+        this.utils.animatedSceneChange(SCENES.GAME);
+      }
+      if (swipeObj.up) {
+        this.secondStep();
+      }
+    });
   }
 }

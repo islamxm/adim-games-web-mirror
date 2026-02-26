@@ -63,13 +63,16 @@ export class GameOverScene extends BaseScene {
           { align: "left" },
         )
         .add(
-          this.utils.createText(this.registry.get("score") || 0, {
-            style: {
-              fontFamily: "Nerko-One-Font",
-              fontSize: this.utils._px(36),
-              color: "#ffffff",
+          this.utils.createText(
+            this.registry.get("gameData")?.bestScore || "0",
+            {
+              style: {
+                fontFamily: "Nerko-One-Font",
+                fontSize: this.utils._px(36),
+                color: "#ffffff",
+              },
             },
-          }),
+          ),
           { align: "left" },
         ),
     );
@@ -135,8 +138,8 @@ export class GameOverScene extends BaseScene {
           },
         },
       );
-      const topScore = await res.json();
-      this.registry.set("top-score", topScore?.score);
+      const gameData = await res.json();
+      this.registry.set("gameData", gameData);
     } catch (err) {
       console.error("SAVE SCORE ERROR");
     }
