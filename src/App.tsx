@@ -1,8 +1,17 @@
 import { BrowserRouter, Route, Routes } from "react-router";
-import { getGamePage, getGamesPage } from "@/core/model";
-import { GamesPage } from "@/pages/gamesPage";
-import { ChalkBoardChallengeGame } from "@/games/ChalkBoardChallenge";
-import { EbbAndFlowGame } from "@/games/EbbAndFlow";
+import { getGamePage } from "@/core/model";
+import { lazy } from "react";
+
+const EbbAndFlowGame = lazy(() =>
+  import("@/games/EbbAndFlow").then((module) => ({
+    default: module.EbbAndFlowGame,
+  })),
+);
+const ChalkBoardChallengeGame = lazy(() =>
+  import("@/games/ChalkBoardChallenge").then((module) => ({
+    default: module.ChalkBoardChallengeGame,
+  })),
+);
 
 function App() {
   return (
