@@ -79,9 +79,13 @@ export function createGameConfig(
 export type Direction = "TOP" | "BOTTOM" | "LEFT" | "RIGHT";
 export type LeafType = "yellow" | "green";
 export type Question = {
+  /** yapragyn renki */
   leafType: LeafType;
+  /** seredyan tarapy */
   direction: Direction;
+  /** hereket edyan tarapy */
   moveDirection: Direction;
+  /** dogry jogap */
   correct: Direction;
 };
 

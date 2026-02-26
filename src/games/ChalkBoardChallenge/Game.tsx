@@ -37,7 +37,7 @@ export const Game = () => {
       bottomInset: Number(bottomInset),
     };
     const config = createGameConfig(CONTAINER_ID, bounds, {
-      quit: () => console.log("SEND EVENT TO NATIVE DEVICE"),
+      quit: () => window.close(),
       gameSessionToken,
     });
     gameRef.current = new Phaser.Game(config);
