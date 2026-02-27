@@ -9,7 +9,6 @@ export class HUDScene extends BaseScene {
   private scorePanel!: Sizer;
   private _value: string = "";
   private inputText!: GameObjects.Text;
-  inputLabel!: Label;
 
   constructor() {
     super({ sceneKey: SCENES.HUD });
@@ -110,19 +109,15 @@ export class HUDScene extends BaseScene {
       space: { item: this.utils._px(10) },
     });
 
-    this.inputLabel = this.rexUI.add.label({
+    this.inputText = this.utils.createText("");
+    const inputLabel = this.rexUI.add.label({
       height: this.utils._px(60),
       width: this.utils.gameWidth,
       align: "center",
-      // text: this.inputText,
+      background: this.rexUI.add.roundRectangle(0, 0, 0, 0, 0, 0x000000),
     });
-    this.inputLabel.addBackground(
-      this.rexUI.add.roundRectangle(0, 0, 0, 0, 0, 0x000000),
-    );
-    this.inputText = this.utils.createText("11321232");
-    this.inputLabel.add(this.inputText);
 
-    container.add(this.inputLabel);
+    container.add(inputLabel);
 
     const grid = this.rexUI.add.gridSizer({
       column: 3,

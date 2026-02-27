@@ -9,6 +9,7 @@ export class GameOverScene extends BaseScene {
   create() {
     this.createMainPanel();
     this.createStartButton();
+    this.saveScore();
   }
 
   createMainPanel() {
