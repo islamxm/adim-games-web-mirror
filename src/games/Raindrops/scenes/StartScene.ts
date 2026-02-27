@@ -1,9 +1,9 @@
 import { BaseScene } from "@/core/lib/baseScene";
 import { SCENES } from "../config";
 
-export class GameOverScene extends BaseScene {
+export class StartScene extends BaseScene {
   constructor() {
-    super({ sceneKey: SCENES.GAME_OVER });
+    super({ sceneKey: SCENES.START });
   }
 
   create() {
@@ -53,7 +53,7 @@ export class GameOverScene extends BaseScene {
           },
         })
         .add(
-          this.utils.createText("SIZIŇ NETIJÄŇIZ", {
+          this.utils.createText("IŇ ÝOKARY NETIJE", {
             style: {
               fontFamily: "Nerko-One-Font",
               fontSize: this.utils._px(14),
@@ -63,19 +63,30 @@ export class GameOverScene extends BaseScene {
           { align: "left" },
         )
         .add(
-          this.utils.createText(this.registry.get("score"), {
-            style: {
-              fontFamily: "Nerko-One-Font",
-              fontSize: this.utils._px(36),
-              color: "#ffffff",
+          this.utils.createText(
+            this.registry.get("gameData")?.bestScore || "0",
+            {
+              style: {
+                fontFamily: "Nerko-One-Font",
+                fontSize: this.utils._px(36),
+                color: "#ffffff",
+              },
             },
-          }),
+          ),
           { align: "left" },
         ),
     );
+    const title = this.utils.createText("Öz reaksiýaň tizligini artdyr!", {
+      style: {
+        fontSize: this.utils._px(24),
+        align: "center",
+        fontFamily: "Nerko-One-Font",
+      },
+    });
 
     container.addSpace();
     container.add(scorePanel, { align: "center" });
+    container.add(title, { align: "center" });
     container.addSpace();
     container.layout();
   }
@@ -88,12 +99,12 @@ export class GameOverScene extends BaseScene {
         this.utils.bottomInset -
         this.utils._px(60),
       x: this.utils.gameWidth / 2,
-      width: this.utils._px(254),
+      width: this.utils._px(150),
       height: this.utils._px(54),
       background: this.add
-        .image(0, 0, "long-yellow-btn-bg")
+        .image(0, 0, "short-yellow-btn-bg")
         .setDisplaySize(this.utils._px(150), this.utils._px(54)),
-      text: this.utils.createText("TÄZEDEN SYNANŞ", {
+      text: this.utils.createText("BAŞLA", {
         style: {
           fontSize: `${this.utils._px(24)}px`,
           align: "center",
@@ -112,33 +123,12 @@ export class GameOverScene extends BaseScene {
     button.setInteractive();
     button.on("pointerdown", () => {
       this.sound.play("click-sound");
-      this.utils.animatedSceneChange(SCENES.GAME);
+      const isFirstTime = this.registry.get("gameData")?.lastScore === 0;
+      if (isFirstTime) {
+        this.utils.animatedSceneChange(SCENES.TUTORIAL);
+      } else {
+        this.utils.animatedSceneChange(SCENES.GAME);
+      }
     });
-  }
-
-  async saveScore() {
-    try {
-      await fetch(`${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`, {
-        method: "POST",
-        body: JSON.stringify({
-          score: this.registry.get("score"),
-        }),
-        headers: {
-          Authorization: `Bearer ${this.registry.get("gameSessionToken")}`,
-        },
-      });
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.registry.get("gameSessionToken")}`,
-          },
-        },
-      );
-      const gameData = await res.json();
-      this.registry.set("gameData", gameData);
-    } catch (err) {
-      console.error("SAVE SCORE ERROR");
-    }
   }
 }

@@ -63,13 +63,16 @@ export class GameOverScene extends BaseScene {
           { align: "left" },
         )
         .add(
-          this.utils.createText(this.registry.get("score"), {
-            style: {
-              fontFamily: "Nerko-One-Font",
-              fontSize: this.utils._px(36),
-              color: "#ffffff",
+          this.utils.createText(
+            this.registry.get("gameData")?.bestScore || "0",
+            {
+              style: {
+                fontFamily: "Nerko-One-Font",
+                fontSize: this.utils._px(36),
+                color: "#ffffff",
+              },
             },
-          }),
+          ),
           { align: "left" },
         ),
     );

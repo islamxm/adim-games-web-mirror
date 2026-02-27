@@ -3,11 +3,9 @@ import { useEffect, useRef } from "react";
 
 import * as Phaser from "phaser";
 
-import { createGameConfig } from "./config";
-import { useNavigate, useSearchParams } from "react-router";
+import { createGameConfig, GAME_NAME } from "./config";
+import { useSearchParams } from "react-router";
 import type { GameWindowBounds } from "@/core/model";
-
-const CONTAINER_ID = "chalkboard-challenge-game";
 
 export const Game = () => {
   const gameRef = useRef<Phaser.Game | null>(null);
@@ -36,7 +34,7 @@ export const Game = () => {
       topInset: Number(topInset),
       bottomInset: Number(bottomInset),
     };
-    const config = createGameConfig(CONTAINER_ID, bounds, {
+    const config = createGameConfig(GAME_NAME, bounds, {
       quit: () => window.close(),
       gameSessionToken,
     });
@@ -50,7 +48,7 @@ export const Game = () => {
 
   return (
     <div
-      id={CONTAINER_ID}
+      id={GAME_NAME}
       style={{
         width: "100%",
         height: "100vh",
