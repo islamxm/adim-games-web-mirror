@@ -1,14 +1,10 @@
 import { BaseScene } from "@/core/lib/baseScene";
 import { SCENES } from "../config";
 import Sizer from "phaser3-rex-plugins/templates/ui/sizer/Sizer";
-import type { GameObjects } from "phaser";
-import Label from "phaser3-rex-plugins/templates/ui/label/Label";
 
 export class HUDScene extends BaseScene {
   private scoreValue!: Phaser.GameObjects.Text;
   private scorePanel!: Sizer;
-  private _value: string = "";
-  private inputText!: GameObjects.Text;
 
   constructor() {
     super({ sceneKey: SCENES.HUD });
@@ -16,7 +12,6 @@ export class HUDScene extends BaseScene {
 
   create() {
     this.createPauseBtn();
-    this.createControls();
   }
 
   createPauseBtn() {
@@ -86,82 +81,5 @@ export class HUDScene extends BaseScene {
 
     this.scorePanel = scorePanel;
     return scorePanel;
-  }
-
-  get value(): string {
-    return this._value;
-  }
-
-  set value(val: string) {
-    this._value = val;
-    if (this.inputText) {
-      this.inputText.setText(val);
-    }
-  }
-
-  createControls() {
-    const container = this.rexUI.add.sizer({
-      x: this.utils.gameWidth / 2,
-      y: this.utils.gameHeight,
-      orientation: "y",
-      width: this.utils.gameWidth,
-      originY: 1,
-      space: { item: this.utils._px(10) },
-    });
-
-    this.inputText = this.utils.createText("");
-    const inputLabel = this.rexUI.add.label({
-      height: this.utils._px(60),
-      width: this.utils.gameWidth,
-      align: "center",
-      background: this.rexUI.add.roundRectangle(0, 0, 0, 0, 0, 0x000000),
-    });
-
-    container.add(inputLabel);
-
-    const grid = this.rexUI.add.gridSizer({
-      column: 3,
-      row: 3,
-      space: { column: this.utils._px(10), row: this.utils._px(10) },
-    });
-
-    const numberBtnValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    const numberBtnSize = this.utils.gameWidth / 3;
-
-    for (let key of numberBtnValues) {
-      const str = key.toString();
-
-      const btnLabel = this.rexUI.add.label({
-        width: numberBtnSize,
-        height: numberBtnSize,
-        background: this.rexUI.add.roundRectangle(0, 0, 0, 0, 0, 0x000000),
-        align: "center",
-        text: this.utils.createText(str),
-      });
-      btnLabel.layout();
-      btnLabel.setInteractive();
-      btnLabel.on("pointerdown", () => {
-        if (this.value.length === 3) {
-          this.value = this.value + str;
-        }
-      });
-      grid.add(btnLabel, {
-        column: (key - 1) % 3,
-        row: Math.floor((key - 1) / 3),
-      });
-    }
-    container.add(grid);
-
-    const submitButton = this.rexUI.add.label({
-      x: 0,
-      y: 0,
-      height: this.utils._px(60),
-      width: this.utils.gameWidth,
-      background: this.rexUI.add.roundRectangle(0, 0, 0, 0, 0, 0x000000),
-      text: this.utils.createText("SUBMIT", { style: { align: "center" } }),
-      align: "center",
-    });
-    container.add(submitButton);
-    container.layout();
   }
 }

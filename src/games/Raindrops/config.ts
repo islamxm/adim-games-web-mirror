@@ -32,6 +32,12 @@ export function createGameConfig(
     type: Phaser.AUTO,
     width: bounds.width * SCALE_COEF,
     height: bounds.height * SCALE_COEF,
+    physics: {
+      default: "matter",
+      matter: {
+        gravity: { x: 0, y: 0 },
+      },
+    },
     parent,
     backgroundColor: "#041716",
     scale: {
