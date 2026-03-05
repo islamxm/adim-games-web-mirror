@@ -198,14 +198,13 @@ export default class GameScene extends BaseScene {
       this.tweens.add({
         targets: balloon,
         angle: {
-          from: Phaser.Math.Between(-10, -5),
-          to: Phaser.Math.Between(5, 10),
+          from: Phaser.Math.Between(-5, 5),
+          to: Phaser.Math.Between(-5, 5),
+          duration: Phaser.Math.Between(2000, 5000),
+          ease: "Sine.easeInOut",
         },
-        duration: Phaser.Math.Between(2000, 5000),
         yoyo: true,
         repeat: -1,
-        // y: y - Phaser.Math.Between(this.utils._px(5), this.utils._px(15)),
-        ease: "Sine.easeInOut",
         delay: i * 50,
       });
       balloon
