@@ -291,20 +291,22 @@ export default class GameScene extends BaseScene {
     this.game.events.emit("update-combo-count", this.comboCount);
 
     const allBalloons = this.balloonsGroup.getChildren().slice();
-    allBalloons.forEach((b) => {
+    let popCount = 1;
+    allBalloons.forEach((b, i) => {
       // @ts-ignore
       if (b.isCorrect) {
         // @ts-ignore
         this.shatterBalloon(b.x, b.y);
         b.destroy();
       } else {
-        this.time.delayedCall(Phaser.Math.Between(50, 350), () => {
+        this.time.delayedCall(popCount * 80, () => {
           if (b && b.active) {
             // @ts-ignore
             this.shatterBalloon(b.x, b.y);
             b.destroy();
           }
         });
+        popCount++;
       }
     });
   }
