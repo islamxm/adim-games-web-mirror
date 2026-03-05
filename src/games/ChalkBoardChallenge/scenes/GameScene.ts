@@ -171,7 +171,6 @@ export class GameScene extends BaseScene {
   wrong() {
     this.showResultIcon("wrong-icon");
 
-    // Останавливаем старые тряски и возвращаем камеру в 0, чтобы не было накопления смещения
     this.tweens.killTweensOf(this.cameras.main);
     this.cameras.main.scrollX = 0;
 

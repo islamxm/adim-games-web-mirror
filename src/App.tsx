@@ -17,6 +17,11 @@ const RaindropsGame = lazy(() =>
     default: module.RaindropsGame,
   })),
 );
+const BalloonHero = lazy(() =>
+  import("@/games/BalloonHero").then((module) => ({
+    default: module.BalloonHeroGame,
+  })),
+);
 
 function App() {
   return (
@@ -32,6 +37,7 @@ function App() {
           element={<EbbAndFlowGame />}
         />
         <Route path={getGamePage("raindrops")} element={<RaindropsGame />} />
+        <Route path={getGamePage("balloon_hero")} element={<BalloonHero />} />
       </Routes>
     </BrowserRouter>
   );

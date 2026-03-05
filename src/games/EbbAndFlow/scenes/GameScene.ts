@@ -34,19 +34,31 @@ export default class GameScene extends BaseScene {
     super({ sceneKey: SCENES.GAME });
   }
 
-  create() {
-    // Сбрасываем состояние игры при старте/рестарте
-    this.gameDuration = 60;
+  init() {
     this.score = 0;
     this.scoreMultiplier = 1;
     this.comboCount = 0;
+    this.gameDuration = 60;
+  }
 
-    this.scene.stop(SCENES.HUD);
+  create() {
+    this.resetGame();
     super.createCountdown(this.startCountdown, () => {
       this.next();
       this.startTime();
       this.scene.launch(SCENES.HUD);
     });
+  }
+
+  resetGame() {
+    this.gameDuration = 60;
+    this.score = 0;
+    this.scoreMultiplier = 1;
+    this.comboCount = 0;
+    this.leaves?.destroy(true);
+    this.leaves = null as any;
+    this.timerEvent.destroy();
+    this.scene.stop(SCENES.HUD);
   }
 
   next() {
@@ -294,14 +306,7 @@ export default class GameScene extends BaseScene {
   }
 
   endGame() {
-    if (this.timerEvent) {
-      this.timerEvent.destroy();
-    }
-    if (this.leaves) {
-      this.leaves.destroy(true);
-      this.leaves = null as any;
-    }
-    this.scene.stop(SCENES.HUD);
+    this.resetGame();
     this.registry.set("score", this.score);
     this.utils.animatedSceneChange(SCENES.GAME_OVER);
   }

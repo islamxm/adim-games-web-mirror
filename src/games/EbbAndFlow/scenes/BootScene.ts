@@ -63,6 +63,7 @@ export class BootScene extends BaseScene {
 
   create() {
     const gameData = this.cache.json.get("gameData");
+    console.log(gameData);
     this.registry.set("gameData", gameData);
     this.scene.launch(SCENES.BACKGROUND);
     this.utils.animatedSceneChange(SCENES.START);
