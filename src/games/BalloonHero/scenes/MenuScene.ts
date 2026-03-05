@@ -58,7 +58,7 @@ export class MenuScene extends BaseScene {
           this.scene.start(SCENES.GAME);
         }
         if (label === "Oýundan Çyk") {
-          this.registry.get("quit")?.();
+          this.nativeBridge.close();
         }
       });
       btns.push(btn);

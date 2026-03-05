@@ -19,7 +19,7 @@ export class MenuScene extends BaseScene {
       .setOrigin(0, 0)
       .setInteractive();
 
-    const labels = ["Resume", "Restart", "Quit"];
+    const labels = ["Dowam Et", "Täzeden Başla", "Oýundan Çyk"];
     const iconMap: Record<string, string> = {
       Resume: "play-icon",
       Restart: "restart-icon",
@@ -52,18 +52,17 @@ export class MenuScene extends BaseScene {
       btn.layout();
       btn.setInteractive().on("pointerdown", () => {
         this.sound.play("click-sound");
-        if (label === "Resume") {
+        if (label === "Dowam Et") {
           this.closeMenu();
         }
-        if (label === "Restart") {
+        if (label === "Täzeden Başla") {
           this.closeMenu();
           this.registry.set("score", 0);
           this.scene.start(SCENES.GAME);
           this.game.events.emit("restart");
         }
-        if (label === "Quit") {
-          this.game.destroy(true);
-          this.registry.get("quit")?.();
+        if (label === "Oýundan Çyk") {
+          this.nativeBridge.close();
         }
       });
       btns.push(btn);

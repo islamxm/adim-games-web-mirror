@@ -35,7 +35,6 @@ export const Game = () => {
       bottomInset: Number(bottomInset),
     };
     const config = createGameConfig(GAME_NAME, bounds, {
-      quit: () => window.close(),
       gameSessionToken,
     });
     gameRef.current = new Phaser.Game(config);

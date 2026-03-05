@@ -3,6 +3,7 @@ import clickSound from "../../assets/click-sound.mp3";
 import tickSound from "../../assets/tick-sound.wav";
 import clockIcon from "../../assets/clock-icon.png";
 import pauseIcon from "../../assets/pause-icon.png";
+import { NativeBridge } from "./nativeBridge";
 
 type BaseSceneConfig = {
   sceneKey: string;
@@ -10,9 +11,11 @@ type BaseSceneConfig = {
 
 export class BaseScene extends Phaser.Scene {
   public utils!: GameUtils;
+  public nativeBridge!: NativeBridge;
   constructor({ sceneKey }: BaseSceneConfig) {
     super(sceneKey);
     this.utils = new GameUtils(this);
+    this.nativeBridge = new NativeBridge();
   }
 
   preload() {
