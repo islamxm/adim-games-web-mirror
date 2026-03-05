@@ -13,9 +13,15 @@ const ChalkBoardChallengeGame = lazy(() =>
   })),
 );
 
-const BalloonHero = lazy(() =>
+const BalloonHeroGame = lazy(() =>
   import("@/games/BalloonHero").then((module) => ({
     default: module.BalloonHeroGame,
+  })),
+);
+
+const BalloonHeroWordsGame = lazy(() =>
+  import("@/games/BalloonHeroWords").then((module) => ({
+    default: module.BalloonHeroWordsGame,
   })),
 );
 
@@ -32,7 +38,14 @@ function App() {
           path={getGamePage("ebb_and_flow")}
           element={<EbbAndFlowGame />}
         />
-        <Route path={getGamePage("balloon_hero")} element={<BalloonHero />} />
+        <Route
+          path={getGamePage("balloon_hero")}
+          element={<BalloonHeroGame />}
+        />
+        <Route
+          path={getGamePage("balloon_hero_words")}
+          element={<BalloonHeroWordsGame />}
+        />
       </Routes>
     </BrowserRouter>
   );
