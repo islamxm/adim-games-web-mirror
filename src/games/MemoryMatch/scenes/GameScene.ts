@@ -1,9 +1,15 @@
 import { BaseScene } from "@/core/lib/baseScene";
-import { SCENES, type Question } from "../config";
+import {
+  questionsMock,
+  SCENES,
+  shuffleQuestions,
+  type Question,
+} from "../config";
 import type Sizer from "phaser3-rex-plugins/templates/ui/sizer/Sizer";
 import type OverlapSizer from "phaser3-rex-plugins/templates/ui/overlapsizer/OverlapSizer";
 import type { GameObjects } from "phaser";
 import type Label from "phaser3-rex-plugins/templates/ui/label/Label";
+import type GridSizer from "phaser3-rex-plugins/templates/ui/gridsizer/GridSizer";
 
 const SCORE_BASE = 5;
 
@@ -16,8 +22,12 @@ export default class GameScene extends BaseScene {
 
   private gameContainer!: Sizer;
 
-  private currentQuestion!: Question;
+  private questions: Array<Question> = shuffleQuestions(questionsMock);
+  private cards!: GameObjects.Group;
   private timerEvent!: Phaser.Time.TimerEvent;
+
+  private pair: Array<Pick<Question, "id" | "value">> = [];
+  private done: Array<Pick<Question, "id" | "value">> = [];
 
   constructor() {
     super({ sceneKey: SCENES.GAME });
@@ -32,29 +42,77 @@ export default class GameScene extends BaseScene {
 
   create() {
     this.resetGame();
-    this.startGame();
-    // super.createCountdown(this.startCountdown, () => {
-    //   this.startTime();
-    //   this.scene.launch(SCENES.HUD);
-    // });
+    super.createCountdown(this.startCountdown, () => {
+      // this.startTime();
+      this.startGame();
+      this.scene.launch(SCENES.HUD);
+    });
   }
 
-  handleAnswer() {}
+  handleAnswer() {
+    if (this.pair.length < 2) return;
+    const first = this.pair[0];
+    const second = this.pair[1];
 
-  closeCard() {}
+    const isCorrect = first.value === second.value;
 
-  openCard() {}
+    if (isCorrect) {
+      this.done.push(first);
+      this.done.push(second);
+      this.pair = [];
+      const isVictory = this.done.length === this.questions.length;
 
-  flipCard(card: OverlapSizer) {
-    if (card.getData("isFlipping") || card.getData("isFaceUp")) return;
+      if (isVictory) {
+        this.sound.play("victorySound");
+      } else {
+        this.sound.play("correctSound");
+      }
+    } else {
+      this.sound.play("wrongSound");
+      this.cards.children.each((card) => {
+        const id = card.getData("id") as number;
+        if (id === first.id || id === second.id) {
+          this.closeCard(card as OverlapSizer);
+        }
+        return null;
+      });
+    }
+  }
 
-    card.setData("isFlipping", true);
-
+  closeCard(card: OverlapSizer) {
+    const id = card.getData("id") as number;
+    this.pair = this.pair.filter((f) => f.id === id);
     this.tweens.add({
       targets: card,
       scaleX: 0,
       duration: 150,
-      ease: "Linar",
+      ease: "Linear",
+      onComplete: () => {
+        const back = card.getElement("back") as GameObjects.Image;
+        const front = card.getElement("front") as Label;
+
+        back.setVisible(true);
+        front.setVisible(false);
+
+        this.tweens.add({
+          targets: card,
+          scaleX: 1,
+          duration: 150,
+          ease: "Back.easeOut",
+          onComplete: () => {
+            card.setData("isFlipping", false);
+          },
+        });
+      },
+    });
+  }
+
+  openCard(card: OverlapSizer) {
+    this.tweens.add({
+      targets: card,
+      scaleX: 0,
+      duration: 150,
+      ease: "Linear",
       onComplete: () => {
         const back = card.getElement("back") as GameObjects.Image;
         const front = card.getElement("front") as Label;
@@ -69,31 +127,57 @@ export default class GameScene extends BaseScene {
           ease: "Back.easeOut",
           onComplete: () => {
             card.setData("isFlipping", false);
-            card.setData("isFaceUp", true);
           },
         });
       },
     });
   }
 
-  createCard() {
+  selectCard(card: OverlapSizer) {
+    const cardId = card.getData("id") as number;
+    const cardValue = card.getData("value") as string;
+    const isFlipping = card.getData("isFlipping") as boolean;
+    const isDisabled = this.done.find((f) => f.id === cardId);
+
+    if (isDisabled || isFlipping) return;
+
+    const canClose = this.pair.find((f) => f.id === cardId);
+    this.sound.play("flipSound");
+    if (canClose) {
+      this.pair = this.pair.filter((f) => f.id === cardId);
+      this.closeCard(card);
+    } else {
+      this.pair.push({ id: cardId, value: cardValue });
+      this.openCard(card);
+      this.handleAnswer();
+    }
+  }
+
+  createCard(question: Question) {
+    const backSide = this.add.image(0, 0, "cardBackBg");
     const frontSide = this.rexUI.add.label({
       background: this.add.image(0, 0, "cardFrontBg"),
       align: "center",
+      icon: this.add.image(0, 0, question.imageKey),
     });
-    frontSide.setVisible(false);
-
-    const backSide = this.add.image(0, 0, "cardBackBg");
+    frontSide.setVisible(true);
 
     const card = this.rexUI.add.overlapSizer({
       width: this.utils._px(99),
       height: this.utils._px(120),
     });
+
+    this.time.delayedCall(1000, () => this.closeCard(card));
+
     card.add(backSide, { key: "back", align: "center", expand: true });
     card.add(frontSide, { key: "front", align: "center", expand: true });
 
-    card.setData({ isFaceUp: false });
-    card.setInteractive().onClick(() => this.flipCard(card));
+    card.setData("value", question.value);
+    card.setData("id", question.id);
+    card.setData("imageKey", question.imageKey);
+    card.setData("isFlipping", false);
+
+    card.setInteractive().onClick(() => this.selectCard(card));
     return card;
   }
 
@@ -108,11 +192,13 @@ export default class GameScene extends BaseScene {
         row: this.utils._px(12),
       },
     });
-
-    const items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    items.forEach(() => {
-      gridSizer.add(this.createCard());
+    this.cards = this.add.group();
+    this.questions.forEach((question) => {
+      const card = this.createCard(question);
+      gridSizer.add(card);
+      this.cards.add(card);
     });
+
     gridSizer.layout();
   }
 

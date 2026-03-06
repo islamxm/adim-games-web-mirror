@@ -76,4 +76,28 @@ export function createGameConfig(
   };
 }
 
-export type Question = {};
+export type Question = {
+  imageKey: string;
+  value: string;
+  id: number;
+};
+
+export const questionsMock: Array<Question> = [
+  { id: 1, imageKey: "card1img", value: "1" },
+  { id: 2, imageKey: "card1img", value: "1" },
+  { id: 3, imageKey: "card2img", value: "2" },
+  { id: 4, imageKey: "card2img", value: "2" },
+  { id: 5, imageKey: "card3img", value: "3" },
+  { id: 6, imageKey: "card3img", value: "3" },
+  { id: 7, imageKey: "card4img", value: "4" },
+  { id: 8, imageKey: "card4img", value: "4" },
+  { id: 9, imageKey: "card5img", value: "5" },
+  { id: 10, imageKey: "card5img", value: "5" },
+  { id: 11, imageKey: "card6img", value: "6" },
+  { id: 12, imageKey: "card6img", value: "6" },
+];
+
+export const shuffleQuestions = (questions: Array<Question>) => {
+  const shuffledQuestions = JSON.parse(JSON.stringify(questions));
+  return Phaser.Utils.Array.Shuffle(shuffledQuestions) as Array<Question>;
+};

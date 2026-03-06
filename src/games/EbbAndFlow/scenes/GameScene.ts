@@ -57,7 +57,9 @@ export default class GameScene extends BaseScene {
     this.comboCount = 0;
     this.leaves?.destroy(true);
     this.leaves = null as any;
-    this.timerEvent.destroy();
+    if (this.timerEvent) {
+      this.timerEvent.destroy();
+    }
     this.scene.stop(SCENES.HUD);
   }
 
@@ -296,7 +298,9 @@ export default class GameScene extends BaseScene {
         }
 
         if (this.gameDuration <= 0) {
-          this.timerEvent.destroy();
+          if (this.timerEvent) {
+            this.timerEvent.destroy();
+          }
           this.endGame();
         }
       },
