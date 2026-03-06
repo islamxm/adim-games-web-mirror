@@ -37,3 +37,11 @@ export type GameData = {
   lastScore: number;
   updatedAt: number;
 };
+
+export const comboWords = {
+  "1x": ["1x"],
+  "2x": ["ERBET DÄL"],
+  "3x": ["GOWY", "OŇAT"],
+  "4x": ["GATY GOWY!", "BEREKELLA!"],
+  "5x": ["MUNYYY!!!", "ÝARDYŇ!!!"],
+};

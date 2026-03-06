@@ -15,7 +15,7 @@ export class MenuScene extends BaseScene {
     });
 
     this.add
-      .rectangle(0, 0, this.utils.gameWidth, this.utils.gameHeight, 0xb1a2c4)
+      .rectangle(0, 0, this.utils.gameWidth, this.utils.gameHeight, 0x81cfff)
       .setOrigin(0, 0)
       .setInteractive();
 
@@ -26,7 +26,7 @@ export class MenuScene extends BaseScene {
     labels.forEach((label) => {
       const btn = this.rexUI.add.label({
         width: this.utils._px(248),
-        height: this.utils._px(54),
+        height: this.utils._px(50),
         background: this.add
           .image(0, 0, "btnBigBg")
           .setDisplaySize(this.utils._px(248), this.utils._px(50)),

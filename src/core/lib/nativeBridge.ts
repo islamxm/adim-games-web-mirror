@@ -28,6 +28,13 @@ export class NativeBridge {
 
   private handlePlatform(action: Action) {
     const platform = this.currentPlatform;
+    console.log(window);
+    console.log("PLATFORM: ", platform);
+
+    console.log("WEB EVENT NAME: ", action);
+
+    console.log("EVENT OBJECT: ", platformMap[platform]);
+
     platformMap[platform](action);
   }
 

@@ -26,7 +26,7 @@ export class MenuScene extends BaseScene {
     labels.forEach((label) => {
       const btn = this.rexUI.add.label({
         width: this.utils._px(248),
-        height: this.utils._px(50),
+        height: this.utils._px(54),
         background: this.add
           .image(0, 0, "btnBigBg")
           .setDisplaySize(this.utils._px(248), this.utils._px(50)),
