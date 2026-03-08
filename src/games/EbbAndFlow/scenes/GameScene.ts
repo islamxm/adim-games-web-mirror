@@ -310,8 +310,8 @@ export default class GameScene extends BaseScene {
   }
 
   endGame() {
-    this.resetGame();
     this.registry.set("score", this.score);
+    this.resetGame();
     this.utils.animatedSceneChange(SCENES.GAME_OVER);
   }
 }

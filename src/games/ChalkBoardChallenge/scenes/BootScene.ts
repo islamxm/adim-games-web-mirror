@@ -59,8 +59,6 @@ export class BootScene extends BaseScene {
   create() {
     const questions = this.cache.json.get("questions");
     const gameData = this.cache.json.get("gameData");
-    console.log(questions);
-    console.log(gameData);
     this.registry.set("questions", questions?.questions || []);
     this.registry.set("gameData", gameData);
     this.scene.launch(SCENES.BACKGROUND);

@@ -216,9 +216,7 @@ export class GameUtils {
     this.scene.tweens.add({
       targets: wrapper,
       alpha: 1,
-      duration: 400,
-      ease: "Back.out",
-      delay: 300,
+      duration: 200,
     });
   }
 

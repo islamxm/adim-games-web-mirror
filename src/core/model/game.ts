@@ -3,7 +3,6 @@ type GameMeta = {
   name: string;
   shortName: string;
   description: string;
-  // image?: any
 };
 
 export const games: Record<string, GameMeta> = {

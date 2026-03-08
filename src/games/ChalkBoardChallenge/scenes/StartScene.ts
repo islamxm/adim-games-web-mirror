@@ -81,7 +81,6 @@ export class StartScene extends BaseScene {
     stack.add(bestScore, { align: "center" });
     stack.addSpace();
     stack.layout();
-    console.log(this.registry.get("gameData"));
     button.setInteractive().on("pointerdown", () => {
       const isFirstTime = this.registry.get("gameData")?.lastScore === 0;
 

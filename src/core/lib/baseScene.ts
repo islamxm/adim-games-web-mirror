@@ -21,7 +21,6 @@ export class BaseScene extends Phaser.Scene {
   preload() {
     this.load.image("clock-icon", clockIcon);
     this.load.image("pause-icon", pauseIcon);
-
     this.load.audio("click-sound", clickSound);
     this.load.audio("tick-sound", tickSound);
   }

@@ -3,38 +3,51 @@ type Platform = "iOS" | "Android" | "Web";
 
 const platformMap: Record<Platform, (action: Action) => void> = {
   iOS: (action) => {
-    console.log("[iOS]: ", action);
+    if (!("webkit" in window)) {
+      console.log(
+        "%cERROR%c %c[Web App]%c Обьект для обмена сообщениями с %ciOS - webkit%c не найден в глобальном обьекте",
+        "background: red; color: white; padding: 2px 5px; border-radius: 3px; font-weight: bold;",
+        "color: inherit; background: inherit;",
+        "background: black; color: white; padding: 2px 5px; border-radius: 3px; font-weight: bold;",
+        "color: inherit; background: inherit;",
+        "text-decoration: underline; font-weight: bold;",
+        "color: inherit; background: inherit; text-decoration: none;",
+      );
+      return;
+    }
     window.webkit?.messageHandlers[action]?.postMessage();
   },
   Android: (action) => {
-    console.log("[Android]: ", action);
+    if (!("AndroidHandler" in window)) {
+      console.log(
+        "%cERROR%c %c[Web App]%c Обьект для обмена сообщениями с %cAndroid - AndroidHandler%c не найден в глобальном обьекте",
+        "background: red; color: white; padding: 2px 5px; border-radius: 3px; font-weight: bold;",
+        "color: inherit; background: inherit;",
+        "background: black; color: white; padding: 2px 5px; border-radius: 3px; font-weight: bold;",
+        "color: inherit; background: inherit;",
+        "text-decoration: underline; font-weight: bold;",
+        "color: inherit; background: inherit; text-decoration: none;",
+      );
+      return;
+    }
     window.AndroidHandler?.postMessage(action);
   },
-  Web: (action) => {
-    console.log("[Web]: ", action);
+  Web: () => {
+    console.log(
+      "%cWARNING%c Пожалуйста используйте мобильное приложение Ädim",
+      "background: orange; color: white; padding: 2px 5px; border-radius: 3px; font-weight: bold;",
+      "color: inherit; background: inherit;",
+    );
   },
 };
 
 export class NativeBridge {
-  private get currentPlatform(): Platform {
-    if ("AndroidHandler" in window) {
-      return "Android";
-    } else if ("webkit" in window) {
-      return "iOS";
-    } else {
-      return "Web";
-    }
+  private get getPlatform(): Platform {
+    return "Web";
   }
 
   private handlePlatform(action: Action) {
-    const platform = this.currentPlatform;
-    console.log(window);
-    console.log("PLATFORM: ", platform);
-
-    console.log("WEB EVENT NAME: ", action);
-
-    console.log("EVENT OBJECT: ", platformMap[platform]);
-
+    const platform = this.getPlatform;
     platformMap[platform](action);
   }
 

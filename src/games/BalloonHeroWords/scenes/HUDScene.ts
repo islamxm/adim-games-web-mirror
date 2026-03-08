@@ -134,6 +134,7 @@ export class HUDScene extends BaseScene {
       .setOrigin(0)
       .layout();
     button.setInteractive().on("pointerdown", () => {
+      this.sound.play("click-sound");
       this.scene.pause(SCENES.GAME);
       this.scene.launch(SCENES.MENU);
     });

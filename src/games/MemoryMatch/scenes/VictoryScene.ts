@@ -1,9 +1,9 @@
 import { BaseScene } from "@/core/lib/baseScene";
 import { SCENES } from "../config";
 
-export class GameOverScene extends BaseScene {
+export class VictoryScene extends BaseScene {
   constructor() {
-    super({ sceneKey: SCENES.GAME_OVER });
+    super({ sceneKey: SCENES.VICTORY });
   }
 
   create() {
@@ -24,8 +24,8 @@ export class GameOverScene extends BaseScene {
       },
     });
 
-    const img = this.add.image(0, 0, "gameOverImg");
-    const title = this.utils.createText("Siz utuldyňyz", {
+    const img = this.add.image(0, 0, "trophyImg");
+    const title = this.utils.createText("Berekella! Siz utduňyz", {
       style: {
         fontSize: `${this.utils._px(34)}px`,
         align: "center",

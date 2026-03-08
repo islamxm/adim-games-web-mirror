@@ -136,10 +136,7 @@ export class GameOverScene extends BaseScene {
           },
         },
       );
-      const updateScore = await res.json();
       const gameData = await res.json();
-      console.log(gameData);
-      console.log(updateScore);
       this.registry.set("gameData", gameData);
     } catch (err) {
       console.error("SAVE SCORE ERROR");

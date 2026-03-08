@@ -115,7 +115,7 @@ export class GameOverScene extends BaseScene {
       .setInteractive()
       .onClick(() => {
         this.sound.play("click-sound");
-        console.log("quit");
+        this.nativeBridge.close();
       })
       .setAlpha(0);
     this.tweens.add({

@@ -1,87 +1,290 @@
 import { BaseScene } from "@/core/lib/baseScene";
 import {
-  questionsMock,
+  levels,
   SCENES,
   shuffleQuestions,
+  type Level,
   type Question,
 } from "../config";
 import type Sizer from "phaser3-rex-plugins/templates/ui/sizer/Sizer";
-import type OverlapSizer from "phaser3-rex-plugins/templates/ui/overlapsizer/OverlapSizer";
+import OverlapSizer from "phaser3-rex-plugins/templates/ui/overlapsizer/OverlapSizer";
 import type { GameObjects } from "phaser";
 import type Label from "phaser3-rex-plugins/templates/ui/label/Label";
 import type GridSizer from "phaser3-rex-plugins/templates/ui/gridsizer/GridSizer";
-
-const SCORE_BASE = 5;
+import type Image from "phaser3-rex-plugins/plugins/gameobjects/mesh/perspective/image/Image";
 
 export default class GameScene extends BaseScene {
-  private gameDuration = 60;
-  private startCountdown = 3;
-  private score = 0;
-  private scoreMultiplier = 1;
-  private comboCount = 0;
+  private gameDuration = 40;
 
-  private gameContainer!: Sizer;
-
-  private questions: Array<Question> = shuffleQuestions(questionsMock);
+  private gameGrid!: GridSizer;
+  private levelChangePanel!: Sizer;
+  private level = 0;
+  private levelData: Level = {
+    ...levels[0],
+    questions: shuffleQuestions(levels[0].questions),
+  };
   private cards!: GameObjects.Group;
   private timerEvent!: Phaser.Time.TimerEvent;
 
   private pair: Array<Pick<Question, "id" | "value">> = [];
   private done: Array<Pick<Question, "id" | "value">> = [];
+  private canInteract = true;
 
   constructor() {
     super({ sceneKey: SCENES.GAME });
   }
 
   init() {
-    this.score = 0;
-    this.scoreMultiplier = 1;
-    this.comboCount = 0;
-    this.gameDuration = 60;
+    this.gameDuration = 40;
+    this.level = 0;
+    this.levelData = {
+      ...levels[0],
+      questions: shuffleQuestions(levels[0].questions),
+    };
   }
 
   create() {
     this.resetGame();
-    super.createCountdown(this.startCountdown, () => {
-      // this.startTime();
-      this.startGame();
-      this.scene.launch(SCENES.HUD);
+    this.startTime();
+    this.levelChange();
+    this.scene.launch(SCENES.HUD);
+  }
+
+  levelChange() {
+    this.level++;
+    if (this.levelChangePanel) {
+      this.levelChangePanel.destroy();
+    }
+    if (this.timerEvent) {
+      this.timerEvent.paused = true;
+    }
+    const label = this.rexUI.add.label({
+      width: this.utils.gameWidth * 0.7,
+      height: this.utils._px(97),
+      x: this.utils.gameWidth / 2,
+      y: this.utils.gameHeight / 2,
+      background: this.rexUI.add.roundRectangle({
+        x: 0,
+        y: 0,
+        width: this.utils.gameWidth * 0.7,
+        height: this.utils._px(97),
+        radius: this.utils._px(49),
+        color: 0xffffff,
+      }),
+      text: this.utils.createText(`Level ${this.level}`, {
+        style: {
+          fontFamily: "Nerko-One-Font",
+          fontSize: `${this.utils._px(54)}px`,
+          align: "center",
+          color: "#F54900",
+        },
+      }),
+      align: "center",
+    });
+
+    this.levelChangePanel = this.rexUI.add.sizer({
+      x: this.utils.gameWidth / 2,
+      y: this.utils.gameHeight / 2,
+      width: this.utils.gameWidth,
+      height: this.utils.gameHeight,
+    });
+    this.levelChangePanel.addSpace();
+    this.levelChangePanel.add(label, { align: "center" });
+    this.levelChangePanel.addSpace();
+    this.levelChangePanel.layout();
+    this.levelChangePanel.setAlpha(0);
+    if (this.gameGrid) {
+      this.gameGrid.setVisible(false);
+    }
+
+    this.tweens.add({
+      targets: this.levelChangePanel,
+      duration: 200,
+      alpha: 1,
+      onComplete: () => {
+        this.time.delayedCall(2000, () => {
+          this.tweens.add({
+            targets: this.levelChangePanel,
+            duration: 200,
+            alpha: 0,
+            onComplete: () => {
+              this.startLevel();
+            },
+          });
+        });
+      },
     });
   }
 
-  handleAnswer() {
-    if (this.pair.length < 2) return;
-    const first = this.pair[0];
-    const second = this.pair[1];
-
-    const isCorrect = first.value === second.value;
-
-    if (isCorrect) {
-      this.done.push(first);
-      this.done.push(second);
-      this.pair = [];
-      const isVictory = this.done.length === this.questions.length;
-
-      if (isVictory) {
-        this.sound.play("victorySound");
-      } else {
-        this.sound.play("correctSound");
+  handleAnswer(card: OverlapSizer) {
+    this.openCard(card, () => {
+      if (this.pair.length === 1) {
+        return;
       }
-    } else {
-      this.sound.play("wrongSound");
-      this.cards.children.each((card) => {
-        const id = card.getData("id") as number;
-        if (id === first.id || id === second.id) {
-          this.closeCard(card as OverlapSizer);
+      const first = this.pair[0];
+      const second = this.pair[1];
+
+      const isCorrect = first?.value === second?.value;
+
+      if (isCorrect) {
+        this.gameDuration = this.gameDuration + 5;
+        this.game.events.emit("more-sec", 5);
+        this.done.push(first);
+        this.done.push(second);
+        this.pair = [];
+        this.cards.children.each((card) => {
+          const c = card as OverlapSizer;
+          const id = card.getData("id") as number;
+
+          if (id === first.id || id === second.id) {
+            const front = c.getElement("front") as Label;
+
+            const icon = front.getElement("icon") as Image;
+            icon.setTexture(card.getData("imageKey")).setDepth(2);
+            front.addBackground(this.add.image(0, 0, "cardFrontCorrectBg"));
+
+            c.layout();
+          }
+          return null;
+        });
+        const isVictory = this.done.length === this.levelData.questions.length;
+        if (isVictory) {
+          this.sound.play("victorySound");
+          if (this.level === levels.length) {
+            this.endGame();
+          } else {
+            this.levelChange();
+          }
+        } else {
+          this.sound.play("correctSound");
         }
-        return null;
-      });
-    }
+      } else {
+        this.pair = [];
+        this.sound.play("wrongSound");
+        this.cards.children.each((card) => {
+          const id = card.getData("id") as number;
+          if (id === first.id || id === second.id) {
+            this.closeCard(card as OverlapSizer);
+          }
+          return null;
+        });
+      }
+    });
   }
 
-  closeCard(card: OverlapSizer) {
+  selectCard(card: OverlapSizer) {
     const id = card.getData("id") as number;
-    this.pair = this.pair.filter((f) => f.id === id);
+    const value = card.getData("value") as string;
+    const isFlipping = card.getData("isFlipping") as boolean;
+    const isDisabled = this.done.find((f) => f.id === id);
+
+    if (isDisabled || isFlipping || !this.canInteract) return;
+
+    this.sound.play("flipSound");
+
+    const isContained = this.pair.find((f) => f.id === id);
+
+    if (isContained) {
+      this.closeCard(card, () => {
+        this.pair = [];
+      });
+      return;
+    }
+    this.pair.push({ id, value });
+    this.handleAnswer(card);
+  }
+
+  createCard(question: Question, config: Omit<Level, "questions" | "label">) {
+    const { cardHeight, cardWidth } = config.size;
+
+    const backSide = this.add
+      .image(0, 0, "cardBackBg")
+      .setDisplaySize(this.utils._px(cardWidth), this.utils._px(cardHeight));
+    const frontSide = this.rexUI.add.label({
+      background: this.add.image(0, 0, "cardFrontBg"),
+      align: "center",
+      icon: this.add.image(0, 0, question.imageKey),
+    });
+    frontSide.setVisible(true);
+
+    const card = this.rexUI.add.overlapSizer({
+      width: this.utils._px(cardWidth),
+      height: this.utils._px(cardHeight),
+    });
+    this.canInteract = false;
+    this.time.delayedCall(1000 * (this.level * 2) || 1000, () => {
+      this.closeCard(card);
+      this.canInteract = true;
+      this.timerEvent.paused = false;
+    });
+
+    card.add(backSide, { key: "back", align: "center", expand: true });
+    card.add(frontSide, { key: "front", align: "center", expand: true });
+
+    card.setData("value", question.value);
+    card.setData("id", question.id);
+    card.setData("imageKey", question.imageKey);
+    card.setData("isFlipping", false);
+
+    card.setInteractive().onClick(() => this.selectCard(card));
+    return card;
+  }
+
+  startLevel() {
+    this.cleanupLevel(() => {
+      this.levelData = {
+        ...levels[this.level - 1],
+        questions: shuffleQuestions(levels[this.level - 1].questions),
+      };
+      const { size } = this.levelData;
+      this.gameGrid = this.rexUI.add.gridSizer({
+        x: this.utils.gameWidth / 2,
+        y: this.utils.gameHeight / 2,
+        column: size.col,
+        row: size.gap,
+        space: {
+          column: this.utils._px(size.gap),
+          row: this.utils._px(size.gap),
+        },
+      });
+      this.cards = this.add.group();
+      this.levelData.questions.forEach((question) => {
+        const card = this.createCard(question, { size });
+        this.gameGrid.add(card);
+        this.cards.add(card);
+      });
+      this.gameGrid.setAlpha(0);
+      this.gameGrid.layout();
+      this.tweens.add({
+        targets: this.gameGrid,
+        duration: 200,
+        alpha: 1,
+      });
+    });
+  }
+
+  cleanupLevel(nextLevelCb: () => void) {
+    if (!this.gameGrid) {
+      nextLevelCb();
+      return;
+    }
+    this.canInteract = false;
+    this.tweens.add({
+      targets: this.gameGrid,
+      alpha: 0,
+      duration: 200,
+      onComplete: () => {
+        this.gameGrid?.destroy();
+        this.cards?.destroy();
+        this.pair = [];
+        this.done = [];
+        nextLevelCb();
+      },
+    });
+  }
+
+  closeCard(card: OverlapSizer, onComplete?: () => void) {
+    card.setData("isFlipping", true);
     this.tweens.add({
       targets: card,
       scaleX: 0,
@@ -101,13 +304,15 @@ export default class GameScene extends BaseScene {
           ease: "Back.easeOut",
           onComplete: () => {
             card.setData("isFlipping", false);
+            onComplete?.();
           },
         });
       },
     });
   }
 
-  openCard(card: OverlapSizer) {
+  openCard(card: OverlapSizer, onComplete?: () => void) {
+    card.setData("isFlipping", true);
     this.tweens.add({
       targets: card,
       scaleX: 0,
@@ -127,87 +332,14 @@ export default class GameScene extends BaseScene {
           ease: "Back.easeOut",
           onComplete: () => {
             card.setData("isFlipping", false);
+            onComplete?.();
           },
         });
       },
     });
   }
 
-  selectCard(card: OverlapSizer) {
-    const cardId = card.getData("id") as number;
-    const cardValue = card.getData("value") as string;
-    const isFlipping = card.getData("isFlipping") as boolean;
-    const isDisabled = this.done.find((f) => f.id === cardId);
-
-    if (isDisabled || isFlipping) return;
-
-    const canClose = this.pair.find((f) => f.id === cardId);
-    this.sound.play("flipSound");
-    if (canClose) {
-      this.pair = this.pair.filter((f) => f.id === cardId);
-      this.closeCard(card);
-    } else {
-      this.pair.push({ id: cardId, value: cardValue });
-      this.openCard(card);
-      this.handleAnswer();
-    }
-  }
-
-  createCard(question: Question) {
-    const backSide = this.add.image(0, 0, "cardBackBg");
-    const frontSide = this.rexUI.add.label({
-      background: this.add.image(0, 0, "cardFrontBg"),
-      align: "center",
-      icon: this.add.image(0, 0, question.imageKey),
-    });
-    frontSide.setVisible(true);
-
-    const card = this.rexUI.add.overlapSizer({
-      width: this.utils._px(99),
-      height: this.utils._px(120),
-    });
-
-    this.time.delayedCall(1000, () => this.closeCard(card));
-
-    card.add(backSide, { key: "back", align: "center", expand: true });
-    card.add(frontSide, { key: "front", align: "center", expand: true });
-
-    card.setData("value", question.value);
-    card.setData("id", question.id);
-    card.setData("imageKey", question.imageKey);
-    card.setData("isFlipping", false);
-
-    card.setInteractive().onClick(() => this.selectCard(card));
-    return card;
-  }
-
-  startGame() {
-    const gridSizer = this.rexUI.add.gridSizer({
-      x: this.utils.gameWidth / 2,
-      y: this.utils.gameHeight / 2,
-      column: 3,
-      row: 4,
-      space: {
-        column: this.utils._px(12),
-        row: this.utils._px(12),
-      },
-    });
-    this.cards = this.add.group();
-    this.questions.forEach((question) => {
-      const card = this.createCard(question);
-      gridSizer.add(card);
-      this.cards.add(card);
-    });
-
-    gridSizer.layout();
-  }
-
   resetGame() {
-    this.gameDuration = 60;
-    this.score = 0;
-    this.scoreMultiplier = 1;
-    this.comboCount = 0;
-    // this.timerEvent.destroy();
     this.scene.stop(SCENES.HUD);
   }
 
@@ -241,7 +373,11 @@ export default class GameScene extends BaseScene {
 
   endGame() {
     this.resetGame();
-    this.registry.set("score", this.score);
-    this.utils.animatedSceneChange(SCENES.GAME_OVER);
+    const isVictory = this.done.length === this.levelData.questions.length;
+    if (isVictory) {
+      this.utils.animatedSceneChange(SCENES.VICTORY);
+    } else {
+      this.utils.animatedSceneChange(SCENES.GAME_OVER);
+    }
   }
 }

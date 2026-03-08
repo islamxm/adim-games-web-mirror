@@ -33,61 +33,61 @@ export class StartScene extends BaseScene {
       },
     });
 
-    const scorePanel = this.rexUI.add.sizer({
-      width: this.utils._px(128),
-      height: this.utils._px(65),
-      orientation: "h",
-      space: {
-        item: this.utils._px(12),
-        left: this.utils._px(10),
-        right: this.utils._px(10),
-      },
-    });
-    scorePanel.addBackground(
-      this.rexUI.add
-        .roundRectangle(0, 0, 0, 0, this.utils._px(18), 0xffffff, 0.2)
-        .setStrokeStyle(this.utils._px(1), 0xffdf20, 1),
-    );
-    scorePanel.add(
-      this.add
-        .image(0, 0, "topScoreIcon")
-        .setDisplaySize(this.utils._px(28), this.utils._px(28)),
-    );
-    scorePanel.add(
-      this.rexUI.add
-        .sizer({
-          orientation: "v",
-          space: {
-            item: this.utils._px(2),
-          },
-        })
-        .add(
-          this.utils.createText("Rekord", {
-            style: {
-              fontSize: this.utils._px(12),
-              color: "#FFF085",
-            },
-          }),
-          { align: "left" },
-        )
-        .add(
-          this.utils.createText(
-            this.registry.get("gameData")?.bestScore || "0",
-            {
-              style: {
-                fontSize: this.utils._px(18),
-                color: "#ffffff",
-                fontStyle: "bold",
-              },
-            },
-          ),
-          { align: "left" },
-        ),
-    );
+    // const scorePanel = this.rexUI.add.sizer({
+    //   width: this.utils._px(128),
+    //   height: this.utils._px(65),
+    //   orientation: "h",
+    //   space: {
+    //     item: this.utils._px(12),
+    //     left: this.utils._px(10),
+    //     right: this.utils._px(10),
+    //   },
+    // });
+    // scorePanel.addBackground(
+    //   this.rexUI.add
+    //     .roundRectangle(0, 0, 0, 0, this.utils._px(18), 0xffffff, 0.2)
+    //     .setStrokeStyle(this.utils._px(1), 0xffdf20, 1),
+    // );
+    // scorePanel.add(
+    //   this.add
+    //     .image(0, 0, "topScoreIcon")
+    //     .setDisplaySize(this.utils._px(28), this.utils._px(28)),
+    // );
+    // scorePanel.add(
+    //   this.rexUI.add
+    //     .sizer({
+    //       orientation: "v",
+    //       space: {
+    //         item: this.utils._px(2),
+    //       },
+    //     })
+    //     .add(
+    //       this.utils.createText("Rekord", {
+    //         style: {
+    //           fontSize: this.utils._px(12),
+    //           color: "#FFF085",
+    //         },
+    //       }),
+    //       { align: "left" },
+    //     )
+    //     .add(
+    //       this.utils.createText(
+    //         this.registry.get("gameData")?.bestScore || "0",
+    //         {
+    //           style: {
+    //             fontSize: this.utils._px(18),
+    //             color: "#ffffff",
+    //             fontStyle: "bold",
+    //           },
+    //         },
+    //       ),
+    //       { align: "left" },
+    //     ),
+    // );
 
     container.addSpace();
     container.add(title, { align: "center" });
-    container.add(scorePanel, { align: "center" });
+    // container.add(scorePanel, { align: "center" });
     container.addSpace();
     container.layout();
   }

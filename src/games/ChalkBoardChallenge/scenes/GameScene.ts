@@ -321,7 +321,6 @@ export class GameScene extends BaseScene {
   // }
 
   private _nextQuestion() {
-    console.log(this.currentQuestionIndex);
     this.currentQuestionIndex++;
 
     if (this.currentQuestionIndex >= this.questions.length) {
