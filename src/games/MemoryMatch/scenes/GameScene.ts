@@ -132,6 +132,7 @@ export default class GameScene extends BaseScene {
         this.done.push(first);
         this.done.push(second);
         this.pair = [];
+        if (!this.cards) return;
         this.cards.children.each((card) => {
           const c = card as OverlapSizer;
           const id = card.getData("id") as number;
@@ -241,7 +242,7 @@ export default class GameScene extends BaseScene {
         x: this.utils.gameWidth / 2,
         y: this.utils.gameHeight / 2,
         column: size.col,
-        row: size.gap,
+        row: size.row,
         space: {
           column: this.utils._px(size.gap),
           row: this.utils._px(size.gap),

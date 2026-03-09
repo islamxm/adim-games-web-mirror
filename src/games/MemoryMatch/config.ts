@@ -129,7 +129,7 @@ export const levels: Array<Level> = [
   },
   {
     label: "2 level",
-    size: { col: 3, row: 3, cardHeight: 120, cardWidth: 99, gap: 12 },
+    size: { col: 3, row: 2, cardHeight: 120, cardWidth: 99, gap: 12 },
     questions: [
       { id: 1, imageKey: "card1img", value: "1" },
       { id: 2, imageKey: "card1img", value: "1" },

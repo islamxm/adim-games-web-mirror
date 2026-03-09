@@ -46,10 +46,6 @@ export class NativeBridge {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const platformName = urlParams.get("platform") as Platform;
-
-    console.log("QUERY STRING: ", queryString);
-    console.log("PLATFORM QUERY: ", platformName);
-
     return platformName;
   }
 
@@ -64,9 +60,5 @@ export class NativeBridge {
 
   limit() {
     this.handlePlatform("LIMITED");
-  }
-
-  end() {
-    this.handlePlatform("END");
   }
 }

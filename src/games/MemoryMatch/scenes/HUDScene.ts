@@ -64,11 +64,9 @@ export class HUDScene extends BaseScene {
   addSeconds(value: number) {
     if (!this.timePanel) return;
 
-    console.log(this.timePanel.getBounds().y);
-
     const secLabel = this.rexUI.add.label({
       x: this.timePanel.x,
-      y: this.timePanel.getBounds().y * 2,
+      y: this.timePanel.y + this.timePanel.height * 2,
       text: this.utils.createText(`+${value}`, {
         style: {
           color: "#00E608",
@@ -88,7 +86,7 @@ export class HUDScene extends BaseScene {
         { duration: 200, alpha: 1, ease: "Power1.easeOut" },
         {
           duration: 500,
-          y: this.timePanel.getBounds().y,
+          y: this.timePanel.y + this.timePanel.height,
           alpha: 0,
           delay: 500,
           ease: "Cubic.easeIn",
