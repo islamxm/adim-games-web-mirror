@@ -127,8 +127,8 @@ export default class GameScene extends BaseScene {
       const isCorrect = first?.value === second?.value;
 
       if (isCorrect) {
-        this.gameDuration = this.gameDuration + 5;
-        this.game.events.emit("more-sec", 5);
+        this.gameDuration = this.gameDuration + 3;
+        this.game.events.emit("more-sec", 3);
         this.done.push(first);
         this.done.push(second);
         this.pair = [];
