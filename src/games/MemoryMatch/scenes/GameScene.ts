@@ -138,13 +138,12 @@ export default class GameScene extends BaseScene {
           const id = card.getData("id") as number;
 
           if (id === first.id || id === second.id) {
-            const front = c.getElement("front") as Label;
-
-            const icon = front.getElement("icon") as Image;
-            icon.setTexture(card.getData("imageKey")).setDepth(2);
-            front.addBackground(this.add.image(0, 0, "cardFrontCorrectBg"));
-
-            c.layout();
+            // const front = c.getElement("front") as Label;
+            // if (!front) return null;
+            // const icon = front.getElement("icon") as Image;
+            // icon.setTexture(card.getData("imageKey")).setDepth(2);
+            // front.addBackground(this.add.image(0, 0, "cardFrontCorrectBg"));
+            // c.layout();
           }
           return null;
         });
@@ -285,7 +284,10 @@ export default class GameScene extends BaseScene {
   }
 
   closeCard(card: OverlapSizer, onComplete?: () => void) {
+    this.tweens.killTweensOf(card);
     card.setData("isFlipping", true);
+    // @ts-ignore (если нет в типах, но в плагине есть механизмы подавления)
+    card.setChildDirty(false);
     this.tweens.add({
       targets: card,
       scaleX: 0.01,
@@ -302,9 +304,11 @@ export default class GameScene extends BaseScene {
           targets: card,
           scaleX: 1,
           duration: 150,
-          ease: "Back.easeOut",
+          // ease: "Back.easeOut",
+          ease: "Cubic.out",
           onComplete: () => {
             card.setData("isFlipping", false);
+            card.layout();
             onComplete?.();
           },
         });
@@ -313,7 +317,11 @@ export default class GameScene extends BaseScene {
   }
 
   openCard(card: OverlapSizer, onComplete?: () => void) {
+    this.tweens.killTweensOf(card);
     card.setData("isFlipping", true);
+    // @ts-ignore (если нет в типах, но в плагине есть механизмы подавления)
+    card.setChildDirty(false);
+
     this.tweens.add({
       targets: card,
       scaleX: 0.01,
@@ -323,16 +331,18 @@ export default class GameScene extends BaseScene {
         const back = card.getElement("back") as GameObjects.Image;
         const front = card.getElement("front") as Label;
 
-        back.setVisible(false);
-        front.setVisible(true);
+        back?.setVisible(false);
+        front?.setVisible(true);
 
         this.tweens.add({
           targets: card,
           scaleX: 1,
           duration: 150,
-          ease: "Back.easeOut",
+          // ease: "Back.easeOut",
+          ease: "Cubic.out",
           onComplete: () => {
             card.setData("isFlipping", false);
+            card.layout();
             onComplete?.();
           },
         });
