@@ -42,12 +42,19 @@ const platformMap: Record<Platform, (action: Action) => void> = {
 };
 
 export class NativeBridge {
-  private get getPlatform(): Platform {
-    return "Web";
+  private get platform(): Platform {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const platformName = urlParams.get("platform") as Platform;
+
+    console.log("QUERY STRING: ", queryString);
+    console.log("PLATFORM QUERY: ", platformName);
+
+    return platformName;
   }
 
   private handlePlatform(action: Action) {
-    const platform = this.getPlatform;
+    const platform = this.platform;
     platformMap[platform](action);
   }
 
