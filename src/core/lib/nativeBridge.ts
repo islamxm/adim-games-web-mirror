@@ -15,7 +15,7 @@ const platformMap: Record<Platform, (action: Action) => void> = {
       );
       return;
     }
-    window.webkit?.messageHandlers[action]?.postMessage();
+    window.webkit?.messageHandlers[action]?.postMessage("");
   },
   Android: (action) => {
     if (!("AndroidHandler" in window)) {
