@@ -284,10 +284,7 @@ export default class GameScene extends BaseScene {
   }
 
   closeCard(card: OverlapSizer, onComplete?: () => void) {
-    // this.tweens.killTweensOf(card);
     card.setData("isFlipping", true);
-    // @ts-ignore (если нет в типах, но в плагине есть механизмы подавления)
-    card.setChildDirty(false);
     this.tweens.add({
       targets: card,
       scaleX: 0.01,
@@ -317,11 +314,7 @@ export default class GameScene extends BaseScene {
   }
 
   openCard(card: OverlapSizer, onComplete?: () => void) {
-    // this.tweens.killTweensOf(card);
     card.setData("isFlipping", true);
-    // @ts-ignore (если нет в типах, но в плагине есть механизмы подавления)
-    card.setChildDirty(false);
-
     this.tweens.add({
       targets: card,
       scaleX: 0.01,
