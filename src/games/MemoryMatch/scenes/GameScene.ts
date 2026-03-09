@@ -93,17 +93,14 @@ export default class GameScene extends BaseScene {
     this.levelChangePanel.addSpace();
     this.levelChangePanel.layout();
     this.levelChangePanel.setAlpha(0);
-
+    if (this.gameGrid) {
+      this.gameGrid.setVisible(false);
+    }
     this.tweens.add({
       targets: this.levelChangePanel,
-      delay: 300,
       duration: 200,
       alpha: 1,
-      onStart: () => {
-        if (this.gameGrid) {
-          this.gameGrid.setVisible(false);
-        }
-      },
+
       onComplete: () => {
         this.time.delayedCall(2000, () => {
           this.tweens.add({
@@ -291,7 +288,7 @@ export default class GameScene extends BaseScene {
     card.setData("isFlipping", true);
     this.tweens.add({
       targets: card,
-      scaleX: 0,
+      scaleX: 0.01,
       duration: 150,
       ease: "Linear",
       onComplete: () => {
@@ -319,7 +316,7 @@ export default class GameScene extends BaseScene {
     card.setData("isFlipping", true);
     this.tweens.add({
       targets: card,
-      scaleX: 0,
+      scaleX: 0.01,
       duration: 150,
       ease: "Linear",
       onComplete: () => {
