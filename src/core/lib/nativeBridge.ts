@@ -45,7 +45,7 @@ export class NativeBridge {
   private get platform(): Platform {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
-    const platformName = urlParams.get("platform") as Platform;
+    const platformName = (urlParams.get("platform") as Platform) || "Web";
     return platformName;
   }
 
