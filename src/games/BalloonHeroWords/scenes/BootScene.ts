@@ -47,31 +47,31 @@ export class BootScene extends BaseScene {
 
     this.load.font("Nerko-One-Font", nerkoOneFont);
 
-    this.load.json({
-      key: "gameData",
-      url: `${import.meta.env.VITE_API_URL}game-api/math-balloon/score`,
-      xhrSettings: {
-        header: "Authorization",
-        headerValue: `Bearer ${this.registry.get("gameSessionToken")}`,
-        responseType: "",
-      },
-    });
+    // this.load.json({
+    //   key: "gameData",
+    //   url: `${import.meta.env.VITE_API_URL}game-api/math-balloon/score`,
+    //   xhrSettings: {
+    //     header: "Authorization",
+    //     headerValue: `Bearer ${this.registry.get("gameSessionToken")}`,
+    //     responseType: "",
+    //   },
+    // });
 
-    this.load.json({
-      key: "questions",
-      url: `${import.meta.env.VITE_API_URL}game-api/math-balloon/questions`,
-      xhrSettings: {
-        header: "Authorization",
-        headerValue: `Bearer ${this.registry.get("gameSessionToken")}`,
-        responseType: "",
-      },
-    });
+    // this.load.json({
+    //   key: "questions",
+    //   url: `${import.meta.env.VITE_API_URL}game-api/math-balloon/questions`,
+    //   xhrSettings: {
+    //     header: "Authorization",
+    //     headerValue: `Bearer ${this.registry.get("gameSessionToken")}`,
+    //     responseType: "",
+    //   },
+    // });
   }
 
   create() {
-    const gameData = this.cache.json.get("gameData");
-    const questions = this.cache.json.get("questions");
-    this.registry.set("gameData", gameData);
+    // const gameData = this.cache.json.get("gameData");
+    // const questions = this.cache.json.get("questions");
+    // this.registry.set("gameData", gameData);
     // this.registry.set("questions", questions?.questions || []);
     this.registry.set("questions", prepareGameData(questionsMockTkm));
     this.scene.launch(SCENES.BACKGROUND);

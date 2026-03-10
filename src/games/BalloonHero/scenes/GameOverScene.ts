@@ -166,7 +166,7 @@ export class GameOverScene extends BaseScene {
 
   async saveScore() {
     try {
-      await fetch(
+      const saveScoreRes = await fetch(
         `${import.meta.env.VITE_API_URL}game-api/math-balloon/score`,
         {
           method: "POST",
@@ -178,7 +178,7 @@ export class GameOverScene extends BaseScene {
           },
         },
       );
-      const res = await fetch(
+      const getScoreRes = await fetch(
         `${import.meta.env.VITE_API_URL}game-api/math-balloon/score`,
         {
           headers: {
@@ -186,10 +186,15 @@ export class GameOverScene extends BaseScene {
           },
         },
       );
-      const gameData = await res.json();
-      this.registry.set("gameData", gameData);
+
+      if (getScoreRes.status === 403) {
+        this.nativeBridge.limit();
+        return;
+      }
+      const getScoreData = await getScoreRes.json();
+      this.registry.set("gameData", getScoreData);
     } catch (err) {
-      console.error("SAVE SCORE ERROR");
+      console.log("API ERROR");
     }
   }
 }

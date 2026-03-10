@@ -119,16 +119,19 @@ export class GameOverScene extends BaseScene {
 
   async saveScore() {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`, {
-        method: "POST",
-        body: JSON.stringify({
-          score: this.registry.get("score"),
-        }),
-        headers: {
-          Authorization: `Bearer ${this.registry.get("gameSessionToken")}`,
+      const saveScoreRes = await fetch(
+        `${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            score: this.registry.get("score"),
+          }),
+          headers: {
+            Authorization: `Bearer ${this.registry.get("gameSessionToken")}`,
+          },
         },
-      });
-      const res = await fetch(
+      );
+      const getScoreRes = await fetch(
         `${import.meta.env.VITE_API_URL}game-api/ebb-flow/score`,
         {
           headers: {
@@ -136,10 +139,14 @@ export class GameOverScene extends BaseScene {
           },
         },
       );
-      const gameData = await res.json();
+      if (getScoreRes.status === 403) {
+        this.nativeBridge.limit();
+        return;
+      }
+      const gameData = await getScoreRes.json();
       this.registry.set("gameData", gameData);
     } catch (err) {
-      console.error("SAVE SCORE ERROR");
+      console.error("API ERROR");
     }
   }
 }
