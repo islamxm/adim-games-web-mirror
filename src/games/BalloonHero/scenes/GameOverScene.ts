@@ -165,6 +165,7 @@ export class GameOverScene extends BaseScene {
   }
 
   async saveScore() {
+    this.game.loop.pause();
     try {
       const saveScoreRes = await fetch(
         `${import.meta.env.VITE_API_URL}game-api/math-balloon/score`,
@@ -193,6 +194,7 @@ export class GameOverScene extends BaseScene {
       }
       const getScoreData = await getScoreRes.json();
       this.registry.set("gameData", getScoreData);
+      this.game.loop.resume();
     } catch (err) {
       console.log("API ERROR");
     }

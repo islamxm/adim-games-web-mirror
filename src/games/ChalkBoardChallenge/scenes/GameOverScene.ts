@@ -93,6 +93,7 @@ export class GameOverScene extends BaseScene {
   }
 
   async saveScore() {
+    this.game.loop.pause();
     try {
       const saveScoreRes = await fetch(
         `${import.meta.env.VITE_API_URL}game-api/chalkboard/score`,
@@ -122,6 +123,7 @@ export class GameOverScene extends BaseScene {
 
       const gameData = await getScoreRes.json();
       this.registry.set("gameData", gameData);
+      this.game.loop.resume();
     } catch (err) {
       console.error("API ERROR");
     }

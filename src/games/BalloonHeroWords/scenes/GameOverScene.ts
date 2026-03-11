@@ -9,7 +9,7 @@ export class GameOverScene extends BaseScene {
   create() {
     this.createMainPanel();
     this.createBottomPanel();
-    // this.saveScore();
+    this.saveScore();
   }
 
   createMainPanel() {
@@ -165,9 +165,10 @@ export class GameOverScene extends BaseScene {
   }
 
   async saveScore() {
+    this.game.loop.pause();
     try {
       await fetch(
-        `${import.meta.env.VITE_API_URL}game-api/math-balloon/score`,
+        `${import.meta.env.VITE_API_URL}game-api/english-balloon/score`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -178,16 +179,21 @@ export class GameOverScene extends BaseScene {
           },
         },
       );
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}game-api/math-balloon/score`,
+      const getScoreRes = await fetch(
+        `${import.meta.env.VITE_API_URL}game-api/english-balloon/score`,
         {
           headers: {
             Authorization: `Bearer ${this.registry.get("gameSessionToken")}`,
           },
         },
       );
-      const gameData = await res.json();
+      if (getScoreRes.status === 403) {
+        this.nativeBridge.limit();
+        return;
+      }
+      const gameData = await getScoreRes.json();
       this.registry.set("gameData", gameData);
+      this.game.loop.resume();
     } catch (err) {
       console.error("SAVE SCORE ERROR");
     }
